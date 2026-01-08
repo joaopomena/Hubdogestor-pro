@@ -12,8 +12,8 @@ export default async function handler(req, res) {
     try {
         const { contents, system_instruction } = req.body;
 
-        // Mudança crucial: Usando endpoint /v1/ e o modelo gemini-1.5-flash-latest
-        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        // Versão v1beta é necessária para usar o campo 'system_instruction'
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
         const response = await fetch(url, {
             method: 'POST',
@@ -23,7 +23,7 @@ export default async function handler(req, res) {
                 contents,
                 generationConfig: {
                     temperature: 0.7,
-                    maxOutputTokens: 800,
+                    maxOutputTokens: 1000,
                 }
             })
         });
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
 
         if (data.error) {
             console.error("Erro da API Google:", data.error);
-            return res.status(data.error.code || 400).json({ error: data.error.message });
+            return res.status(400).json({ error: data.error.message });
         }
 
         return res.status(200).json(data);
