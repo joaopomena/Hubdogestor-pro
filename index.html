@@ -311,13 +311,24 @@
                         contents: historicoChat
                     })
                 });
+
                 const data = await response.json();
+
+                // Se o servidor retornar erro, mostramos o texto do erro
+                if (data.error) {
+                    updateBotMessage(typingId, "⚠️ Erro: " + data.error);
+                    return;
+                }
+
                 const aiResponse = data.candidates[0].content.parts[0].text;
                 historicoChat.push({ role: "model", parts: [{ text: aiResponse }] });
+                
                 if (historicoChat.length > 10) historicoChat.splice(0, 2);
                 updateBotMessage(typingId, aiResponse);
-            } catch (e) { updateBotMessage(typingId, "Erro de conexão com o Gestor IA."); }
-        }
+
+            } catch (e) { 
+                updateBotMessage(typingId, "Erro crítico de rede. Verifique os logs da Vercel."); 
+            }
 
         function appendMessage(type, text) {
             const container = document.getElementById('chat-messages');
@@ -402,4 +413,5 @@
     </script>
 </body>
 </html>
+
 
