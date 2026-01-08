@@ -1,5 +1,5 @@
 export const config = {
-    maxDuration: 60, // Tenta estender o tempo de resposta na Vercel
+    maxDuration: 60, 
 };
 
 export default async function handler(req, res) {
@@ -7,8 +7,9 @@ export default async function handler(req, res) {
     if (!API_KEY) return res.status(500).json({ error: 'Chave não configurada.' });
 
     try {
-        const { contents } = req.body;
+        const { contents, system_instruction } = req.body;
         const model = "gemini-2.5-flash"; 
+        // Endpoint de streaming para manter a conexão viva
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${API_KEY}`;
 
         const response = await fetch(url, {
@@ -16,11 +17,11 @@ export default async function handler(req, res) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: contents,
+                system_instruction: system_instruction,
                 tools: [{ google_search: {} }] 
             })
         });
 
-        // Configura o cabeçalho para Streaming (SSE)
         res.setHeader('Content-Type', 'text/event-stream');
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
@@ -36,6 +37,6 @@ export default async function handler(req, res) {
         res.end();
 
     } catch (error) {
-        return res.status(500).json({ error: 'Erro de conexão no servidor.' });
+        return res.status(500).json({ error: 'Erro no servidor.' });
     }
 }
