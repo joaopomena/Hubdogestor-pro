@@ -21,13 +21,11 @@
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         .bell-curve { width: 100%; height: 60px; background: linear-gradient(90deg, #10b981 0%, #10b981 60%, #f59e0b 60%, #f59e0b 85%, #ef4444 85%); border-radius: 8px; opacity: 0.2; }
 
-        /* Estilos preservados e novos para o Relatório */
         .markdown-content p { margin-bottom: 0.5rem; }
         .markdown-content ul, .markdown-content ol { margin-bottom: 0.5rem; padding-left: 1rem; list-style-type: disc; }
         .markdown-content li { margin-bottom: 0.25rem; }
         .markdown-content strong { font-weight: 800; }
         
-        /* Estilo do Card de Relatório */
         .report-card h2 { color: #e11d48; font-weight: 800; text-transform: uppercase; font-size: 1.1rem; margin-top: 1.5rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; }
         .report-card li { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 12px; margin-bottom: 8px; list-style: none; }
     </style>
@@ -231,88 +229,44 @@
         lucide.createIcons();
         marked.setOptions({ breaks: true, gfm: true });
 
-       // SISTEMA DE STREAMING REFORÇADO (IMPEDE O "EM BRANCO")
-async function readStream(response, callback) {
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let accumulatedText = "";
-    let buffer = ""; // Buffer para lidar com pedaços de JSON cortados
+        // SISTEMA DE STREAMING REFORÇADO (IMPEDE O "EM BRANCO")
+        async function readStream(response, callback) {
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let accumulatedText = "";
+            let buffer = ""; 
 
-    while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop(); // Guarda a última linha (incompleta) no buffer
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split("\n");
+                buffer = lines.pop(); 
 
-        for (const line of lines) {
-            if (line.trim().startsWith("data: ")) {
-                try {
-                    const jsonStr = line.replace("data: ", "").trim();
-                    const json = JSON.parse(jsonStr);
-                    if (json.candidates && json.candidates[0].content.parts[0].text) {
-                        accumulatedText += json.candidates[0].content.parts[0].text;
-                        callback(accumulatedText);
+                for (const line of lines) {
+                    if (line.trim().startsWith("data: ")) {
+                        try {
+                            const jsonStr = line.replace("data: ", "").trim();
+                            const json = JSON.parse(jsonStr);
+                            if (json.candidates && json.candidates[0].content.parts[0].text) {
+                                accumulatedText += json.candidates[0].content.parts[0].text;
+                                callback(accumulatedText);
+                            }
+                        } catch (e) {}
                     }
-                } catch (e) {
-                    // Ignora erros de JSON incompleto até que a linha termine
                 }
-            }
-        }
-    }
-    return accumulatedText;
-}
-
-// LÓGICA DO ANALISADOR LP (COM PROMPT IMPERATIVO)
-async function gerarAnaliseLP() {
-    const urlInput = document.getElementById('lp-url').value.trim();
-    const loader = document.getElementById('lp-loader');
-    const resultBox = document.getElementById('lp-result-container');
-    const reportDiv = document.getElementById('lp-report-pdf');
-
-    if (!urlInput) return alert("Insira uma URL válida");
-
-    loader.classList.remove('hidden');
-    resultBox.classList.add('hidden');
-    reportDiv.innerHTML = ""; // Limpa antes de começar
-
-    // Prompt forte para forçar a IA a usar a busca
-    const promptLP = `USE A FERRAMENTA DE BUSCA PARA ACESSAR: ${urlInput}. 
-    Você deve fazer uma Auditoria de CRO. Se não conseguir acessar, descreva as melhores práticas para uma página de vendas.
-    ESTRUTURA:
-    ## 🎯 Análise Honesta da Sua Landing Page
-    ## 💡 8 Ideias de CRO Impactantes
-    ## ✍️ Exemplo Prático de Headline`;
-
-    try {
-        const response = await fetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: promptLP }] }] })
-        });
-
-        await readStream(response, (text) => {
-            loader.classList.add('hidden');
-            resultBox.classList.remove('hidden');
-            // ADICIONADO text-slate-800 para o texto não ficar branco no fundo branco
-            reportDiv.className = "bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm report-card markdown-content text-slate-800";
-            reportDiv.innerHTML = marked.parse(text);
-        });
-    } catch (e) {
-        alert("Erro ao conectar.");
-        loader.classList.add('hidden');
-    }
-}
             }
             return accumulatedText;
         }
 
+        // LÓGICA DE ABAS (CORRIGIDO PARA VOLTAR A FUNCIONAR O CLIQUE)
         function openTab(tabId) {
             const contents = document.querySelectorAll('.tab-content');
             const buttons = document.querySelectorAll('nav button');
             contents.forEach(tab => tab.classList.remove('active'));
             buttons.forEach(btn => btn.classList.remove('active-tab'));
+            
             const activeTab = document.getElementById(tabId);
             const activeBtn = document.getElementById('btn-' + tabId);
             if(activeTab) activeTab.classList.add('active');
@@ -320,8 +274,7 @@ async function gerarAnaliseLP() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-
+        // LÓGICA DO CHAT
         let historicoChat = [];
         const SYSTEM_PROMPT = "Você é o Diretor de Performance do GestorHub PRO. Especialista em Tráfego Pago e CRO. 1. Nunca dê diagnóstico sem saber o NICHO e TICKET. 2. Analise Landing Pages focando em COPY, OFERTA e FUNIL. 3. Respostas técnicas e diretas.";
 
@@ -372,28 +325,26 @@ async function gerarAnaliseLP() {
 
             loader.classList.remove('hidden');
             resultBox.classList.add('hidden');
+            reportDiv.innerHTML = ""; 
 
-            const promptRelatorio = `Acesse e analise detalhadamente a Landing Page deste link: ${urlInput}. 
-            Retorne um relatório robusto em Markdown com estas seções:
+            const promptLP = `USE A FERRAMENTA DE BUSCA PARA ACESSAR: ${urlInput}. 
+            Você deve fazer uma Auditoria de CRO. Se não conseguir acessar, descreva as melhores práticas para uma página de vendas.
+            ESTRUTURA:
             ## 🎯 Análise Honesta da Sua Landing Page
-            (Analise a clareza, promessa e primeira impressão)
             ## 💡 8 Ideias de CRO Impactantes
-            (Liste 8 melhorias práticas com explicações de impacto)
-            ## ✍️ Exemplo Prático: Nova Headline Matadora
-            (Crie uma headline baseada em gatilhos mentais fortes)`;
+            ## ✍️ Exemplo Prático de Headline`;
 
             try {
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        contents: [{ role: "user", parts: [{ text: promptRelatorio }] }] 
-                    })
+                    body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: promptLP }] }] })
                 });
 
                 await readStream(response, (text) => {
                     loader.classList.add('hidden');
                     resultBox.classList.remove('hidden');
+                    reportDiv.className = "bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm report-card markdown-content text-slate-800";
                     reportDiv.innerHTML = marked.parse(text);
                 });
             } catch (e) {
@@ -401,7 +352,7 @@ async function gerarAnaliseLP() {
                 loader.classList.add('hidden');
             }
         }
-}
+
         function baixarPDFAnalise() {
             const element = document.getElementById('lp-report-pdf');
             const opt = {
@@ -431,7 +382,8 @@ async function gerarAnaliseLP() {
             document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
         }
 
-        // CALCULADORES (MANTIDOS ORIGINAIS)
+        const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
         function calcTax() {
             const v = parseFloat(document.getElementById('taxInput').value) || 0;
             const rate = (parseFloat(document.getElementById('taxRate').value) || 0) / 100;
@@ -482,5 +434,3 @@ async function gerarAnaliseLP() {
     </script>
 </body>
 </html>
-
-
