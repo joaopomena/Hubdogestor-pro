@@ -231,28 +231,79 @@
         lucide.createIcons();
         marked.setOptions({ breaks: true, gfm: true });
 
-        // SISTEMA DE STREAMING (PARA EVITAR ERRO DE REDE)
-        async function readStream(response, callback) {
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            let accumulatedText = "";
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-                const chunk = decoder.decode(value);
-                const lines = chunk.split("\n");
-                for (const line of lines) {
-                    if (line.startsWith("data: ")) {
-                        try {
-                            const json = JSON.parse(line.replace("data: ", ""));
-                            if (json.candidates && json.candidates[0].content.parts[0].text) {
-                                const text = json.candidates[0].content.parts[0].text;
-                                accumulatedText += text;
-                                callback(accumulatedText);
-                            }
-                        } catch (e) {}
+       // SISTEMA DE STREAMING REFORÇADO (IMPEDE O "EM BRANCO")
+async function readStream(response, callback) {
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let accumulatedText = "";
+    let buffer = ""; // Buffer para lidar com pedaços de JSON cortados
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop(); // Guarda a última linha (incompleta) no buffer
+
+        for (const line of lines) {
+            if (line.trim().startsWith("data: ")) {
+                try {
+                    const jsonStr = line.replace("data: ", "").trim();
+                    const json = JSON.parse(jsonStr);
+                    if (json.candidates && json.candidates[0].content.parts[0].text) {
+                        accumulatedText += json.candidates[0].content.parts[0].text;
+                        callback(accumulatedText);
                     }
+                } catch (e) {
+                    // Ignora erros de JSON incompleto até que a linha termine
                 }
+            }
+        }
+    }
+    return accumulatedText;
+}
+
+// LÓGICA DO ANALISADOR LP (COM PROMPT IMPERATIVO)
+async function gerarAnaliseLP() {
+    const urlInput = document.getElementById('lp-url').value.trim();
+    const loader = document.getElementById('lp-loader');
+    const resultBox = document.getElementById('lp-result-container');
+    const reportDiv = document.getElementById('lp-report-pdf');
+
+    if (!urlInput) return alert("Insira uma URL válida");
+
+    loader.classList.remove('hidden');
+    resultBox.classList.add('hidden');
+    reportDiv.innerHTML = ""; // Limpa antes de começar
+
+    // Prompt forte para forçar a IA a usar a busca
+    const promptLP = `USE A FERRAMENTA DE BUSCA PARA ACESSAR: ${urlInput}. 
+    Você deve fazer uma Auditoria de CRO. Se não conseguir acessar, descreva as melhores práticas para uma página de vendas.
+    ESTRUTURA:
+    ## 🎯 Análise Honesta da Sua Landing Page
+    ## 💡 8 Ideias de CRO Impactantes
+    ## ✍️ Exemplo Prático de Headline`;
+
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: promptLP }] }] })
+        });
+
+        await readStream(response, (text) => {
+            loader.classList.add('hidden');
+            resultBox.classList.remove('hidden');
+            // ADICIONADO text-slate-800 para o texto não ficar branco no fundo branco
+            reportDiv.className = "bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm report-card markdown-content text-slate-800";
+            reportDiv.innerHTML = marked.parse(text);
+        });
+    } catch (e) {
+        alert("Erro ao conectar.");
+        loader.classList.add('hidden');
+    }
+}
             }
             return accumulatedText;
         }
@@ -431,3 +482,4 @@
     </script>
 </body>
 </html>
+
