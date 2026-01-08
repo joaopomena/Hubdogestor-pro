@@ -42,7 +42,7 @@
                 <button onclick="openTab('stress')" id="btn-stress" class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 transition-all">Analisador Stress</button>
                 <button onclick="openTab('pacing')" id="btn-pacing" class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 transition-all">Pacing</button>
                 <button onclick="openTab('video')" id="btn-video" class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 transition-all">Vídeo</button>
-                <button onclick="openTab('chat')" id="btn-chat" class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 transition-all">Gestor IA 🤖</button>
+                <button onclick="openTab('chat')" id="btn-chat" class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 transition-all flex items-center gap-1">Gestor IA 🤖</button>
             </div>
         </nav>
     </header>
@@ -56,7 +56,7 @@
                         <i data-lucide="calculator" class="text-white w-7 h-7"></i>
                     </div>
                     <h1 class="text-2xl font-black text-slate-800 tracking-tighter uppercase">Taxa de Impostos</h1>
-                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Cálculo de Verba Bruta + Taxa</p>
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em] mt-1">Cálculo de Verba Bruta + Taxa</p>
                 </div>
                 <div class="space-y-6">
                     <div class="grid grid-cols-3 gap-3">
@@ -64,7 +64,7 @@
                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Investimento Bruto</label>
                             <div class="relative">
                                 <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">R$</span>
-                                <input type="number" id="taxInput" oninput="calcTax()" placeholder="0,00" class="w-full pl-10 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xl font-black text-slate-700 focus:border-blue-500 outline-none transition-all">
+                                <input type="number" id="taxInput" oninput="calcTax()" placeholder="0,00" class="w-full pl-10 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xl font-black text-slate-700 focus:border-blue-500 outline-none">
                             </div>
                         </div>
                         <div>
@@ -73,21 +73,19 @@
                         </div>
                     </div>
                     <div class="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden">
-                        <div class="relative z-10">
-                            <div class="flex justify-between items-center mb-6">
-                                <span class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Valor Adicional</span>
-                                <span class="font-black text-rose-400 text-lg" id="taxJuros">+ R$ 0,00</span>
+                        <div class="flex justify-between items-center mb-6">
+                            <span class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Valor Adicional</span>
+                            <span class="font-black text-rose-400 text-lg" id="taxJuros">+ R$ 0,00</span>
+                        </div>
+                        <div class="border-t border-slate-800 my-6"></div>
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <span class="text-slate-500 text-[10px] block font-black uppercase mb-1 tracking-widest">Total Fatura</span>
+                                <span class="text-4xl font-black text-blue-400 tracking-tighter" id="taxTotal">R$ 0,00</span>
                             </div>
-                            <div class="border-t border-slate-800 my-6"></div>
-                            <div class="flex justify-between items-end">
-                                <div>
-                                    <span class="text-slate-500 text-[10px] block font-black uppercase mb-1 tracking-widest">Total Fatura</span>
-                                    <span class="text-4xl font-black text-blue-400 tracking-tighter" id="taxTotal">R$ 0,00</span>
-                                </div>
-                                <button onclick="copyTax()" class="bg-blue-600 hover:bg-blue-500 p-4 rounded-2xl transition-all active:scale-90 shadow-xl group">
-                                    <i data-lucide="copy" class="w-6 h-6 text-white group-hover:rotate-12"></i>
-                                </button>
-                            </div>
+                            <button onclick="copyTax()" class="bg-blue-600 p-4 rounded-2xl shadow-xl active:scale-90 transition-all">
+                                <i data-lucide="copy" class="w-6 h-6 text-white"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -104,12 +102,17 @@
                     <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Margem de Movimentação Financeira</p>
                 </div>
                 <div class="space-y-4">
-                    <input type="number" id="mmfVendas" oninput="calcMMF()" placeholder="Vendas Totais (R$)" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-700 outline-none">
-                    <div class="grid grid-cols-2 gap-3">
-                        <input type="number" id="mmfMargem" oninput="calcMMF()" placeholder="Margem Prod (%)" class="p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-700 outline-none">
-                        <input type="number" id="mmfAds" oninput="calcMMF()" placeholder="Investimento Ads" class="p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-700 outline-none">
+                    <div class="bg-slate-50 rounded-3xl p-4 border border-slate-100 mb-2">
+                        <p class="text-[10px] text-slate-500 font-bold leading-relaxed text-center uppercase tracking-tighter">
+                            Descubra o lucro real após pagar produto, ads e sua taxa.
+                        </p>
                     </div>
-                    <input type="number" id="mmfFee" oninput="calcMMF()" placeholder="Seu FEE / Agência (R$)" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-700 outline-none">
+                    <input type="number" id="mmfVendas" oninput="calcMMF()" placeholder="Vendas Totais (R$)" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-700 outline-none focus:border-indigo-500">
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="number" id="mmfMargem" oninput="calcMMF()" placeholder="Margem Prod (%)" class="p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-700 outline-none focus:border-indigo-500">
+                        <input type="number" id="mmfAds" oninput="calcMMF()" placeholder="Investimento Ads" class="p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-700 outline-none focus:border-indigo-500">
+                    </div>
+                    <input type="number" id="mmfFee" oninput="calcMMF()" placeholder="Seu FEE / Agência (R$)" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-700 outline-none focus:border-indigo-500">
                     <div id="mmfResultBox" class="hidden rounded-[2.5rem] p-10 text-white text-center shadow-lg mt-6">
                         <span id="mmfLabel" class="text-[10px] font-black uppercase tracking-widest"></span>
                         <div id="mmfValue" class="text-5xl font-black my-2 tracking-tighter leading-none">R$ 0,00</div>
@@ -125,34 +128,56 @@
                         <i data-lucide="activity" class="text-white w-7 h-7"></i>
                     </div>
                     <h2 class="text-2xl font-black text-slate-800 tracking-tighter uppercase">Escala de Stress</h2>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Analisador de Variância</p>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Analisador de Variância de Leilão</p>
                 </div>
                 <div class="space-y-4">
-                    <input type="number" id="stressAvg" oninput="calcStress()" placeholder="CPA Médio (7d)" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-700 outline-none focus:border-rose-500">
-                    <input type="number" id="stressNow" oninput="calcStress()" placeholder="CPA Atual" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-700 outline-none focus:border-rose-500">
-                    <div id="stressBox" class="hidden rounded-[2.5rem] p-8 text-white text-center shadow-lg mt-4">
+                    <input type="number" id="stressAvg" oninput="calcStress()" placeholder="CPA Médio (7 dias)" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-700 outline-none focus:border-rose-500">
+                    <input type="number" id="stressNow" oninput="calcStress()" placeholder="CPA de Hoje" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-700 outline-none focus:border-rose-500">
+                    
+                    <div id="stressBox" class="hidden rounded-[2.5rem] p-8 text-white text-center shadow-lg transition-all mt-4">
                         <span id="stressStatus" class="text-[10px] font-black uppercase mb-2 block tracking-widest"></span>
-                        <div id="stressPerc" class="text-5xl font-black tracking-tighter leading-none">+0%</div>
-                        <p id="stressMsg" class="text-[11px] font-medium mt-4"></p>
+                        <div id="stressPerc" class="text-5xl font-black leading-none tracking-tighter">+0%</div>
+                        <p id="stressMsg" class="text-[11px] font-medium mt-4 px-2"></p>
+                    </div>
+
+                    <div class="bg-slate-50 rounded-3xl p-6 space-y-4 border border-slate-100">
+                        <h3 class="text-xs font-black uppercase text-slate-500 flex items-center gap-2">
+                            <i data-lucide="info" class="w-4 h-4"></i> Ciência do Leilão
+                        </h3>
+                        <p class="text-[10px] text-slate-600 leading-relaxed text-justify">
+                            O leilão não é linear. Ele segue uma <strong>Curva de Bell</strong>. Oscilações de até 20% são normais por conta do ruído de dados e concorrência momentânea.
+                        </p>
+                        <div class="bell-curve relative flex items-center justify-center">
+                            <div class="absolute inset-0 flex justify-around items-end pb-1 opacity-40">
+                                <div class="h-4 w-1 bg-slate-400 rounded-full"></div>
+                                <div class="h-8 w-1 bg-slate-400 rounded-full"></div>
+                                <div class="h-12 w-1 bg-slate-400 rounded-full"></div>
+                                <div class="h-8 w-1 bg-slate-400 rounded-full"></div>
+                                <div class="h-4 w-1 bg-slate-400 rounded-full"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div id="pacing" class="tab-content space-y-6">
-            <div class="glass rounded-[2.5rem] shadow-2xl border border-white p-8 text-center">
-                <div class="bg-sky-500 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-sky-200">
-                    <i data-lucide="timer" class="text-white w-7 h-7"></i>
-                </div>
-                <h2 class="text-xl font-black text-slate-800 uppercase tracking-tighter">Pacing de Verba</h2>
-                <div class="space-y-4 mt-6 text-left">
-                    <input type="number" id="pTotal" oninput="calcPacing()" placeholder="Verba Total" class="w-full p-4 bg-slate-50 border-2 rounded-2xl font-black outline-none focus:border-sky-500">
-                    <div class="grid grid-cols-2 gap-3">
-                        <input type="number" id="pGasto" oninput="calcPacing()" placeholder="Já Gastou" class="w-full p-4 bg-slate-50 border-2 rounded-2xl font-black outline-none focus:border-sky-500">
-                        <input type="number" id="pDia" oninput="calcPacing()" placeholder="Dia Atual" class="w-full p-4 bg-slate-50 border-2 rounded-2xl font-black outline-none focus:border-sky-500">
+            <div class="glass rounded-[2.5rem] shadow-2xl border border-white p-8">
+                <div class="text-center mb-8">
+                    <div class="bg-sky-500 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-sky-200">
+                        <i data-lucide="timer" class="text-white w-7 h-7"></i>
                     </div>
-                    <div id="pacingBox" class="hidden bg-slate-900 rounded-[2.5rem] p-8 text-white mt-4 text-center">
-                        <span class="text-[10px] font-black uppercase text-sky-400 tracking-widest">Diário Recomendado</span>
+                    <h1 class="text-2xl font-black text-slate-800 tracking-tighter uppercase">Pacing de Verba</h1>
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1 px-4 text-center">Ritmo diário para não sobrar nem estourar verba.</p>
+                </div>
+                <div class="space-y-4">
+                    <input type="number" id="pTotal" oninput="calcPacing()" placeholder="Verba Total do Mês" class="w-full p-4 bg-slate-50 border-2 rounded-2xl font-black text-slate-700 outline-none focus:border-sky-500">
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="number" id="pGasto" oninput="calcPacing()" placeholder="Já Gastou" class="p-4 bg-slate-50 border-2 rounded-2xl font-black text-slate-700 outline-none focus:border-sky-500">
+                        <input type="number" id="pDia" oninput="calcPacing()" placeholder="Dia Atual" class="p-4 bg-slate-50 border-2 rounded-2xl font-black text-slate-700 outline-none focus:border-sky-500">
+                    </div>
+                    <div id="pacingBox" class="hidden bg-slate-900 rounded-[2.5rem] p-8 text-white mt-4 text-center shadow-2xl">
+                        <span class="text-[10px] font-black uppercase text-sky-400 tracking-widest">Investimento Diário Ideal</span>
                         <div id="pIdeal" class="text-4xl font-black mt-1">R$ 0,00</div>
                     </div>
                 </div>
@@ -166,10 +191,17 @@
                         <i data-lucide="play-circle" class="text-white w-7 h-7"></i>
                     </div>
                     <h1 class="text-2xl font-black text-slate-800 tracking-tighter uppercase">Métricas de Vídeo</h1>
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Análise de Gancho e Retenção</p>
                 </div>
                 <div class="grid grid-cols-2 gap-3 mb-6">
-                    <input type="number" id="vImp" oninput="calcVid()" placeholder="Impressões" class="p-4 bg-slate-50 border-2 rounded-2xl font-black outline-none focus:border-rose-500">
-                    <input type="number" id="v3s" oninput="calcVid()" placeholder="Plays 3s" class="p-4 bg-slate-50 border-2 rounded-2xl font-black outline-none focus:border-rose-500">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase ml-1">Impressões</label>
+                        <input type="number" id="vImp" oninput="calcVid()" placeholder="Total" class="w-full p-4 bg-slate-50 border-2 rounded-2xl font-black text-slate-700 outline-none focus:border-rose-500">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase ml-1">Plays 3s</label>
+                        <input type="number" id="v3s" oninput="calcVid()" placeholder="Gancho" class="w-full p-4 bg-slate-50 border-2 rounded-2xl font-black text-slate-700 outline-none focus:border-rose-500">
+                    </div>
                 </div>
                 <div class="bg-slate-900 rounded-[2.5rem] p-8 grid grid-cols-2 gap-4 text-center shadow-2xl">
                     <div class="border-r border-slate-800">
@@ -181,14 +213,15 @@
                         <div id="rHold" class="text-4xl font-black text-white">0%</div>
                     </div>
                 </div>
+                <p class="text-center text-[9px] font-bold text-slate-400 uppercase mt-4">Padrão Ouro: Hook > 25% | Hold > 15%</p>
             </div>
         </div>
 
         <div id="chat" class="tab-content space-y-6">
-            <div class="glass rounded-[2.5rem] shadow-2xl border border-white flex flex-col h-[500px] overflow-hidden">
+            <div class="glass rounded-[2.5rem] shadow-2xl border border-white flex flex-col h-[550px] overflow-hidden">
                 <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                     <div class="flex items-center gap-3">
-                        <div class="bg-blue-600 w-10 h-10 rounded-xl flex items-center justify-center shadow-lg">
+                        <div class="bg-blue-600 w-10 h-10 rounded-xl flex items-center justify-center shadow-lg shadow-blue-100">
                             <i data-lucide="bot" class="text-white w-5 h-5"></i>
                         </div>
                         <h2 class="text-md font-black text-slate-800 uppercase tracking-tighter">Gestor IA</h2>
@@ -198,14 +231,14 @@
                 <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4 bg-white/30 scroll-smooth">
                     <div class="flex flex-col gap-1 max-w-[80%]">
                         <div class="bg-blue-600 text-white p-4 rounded-3xl rounded-tl-none text-xs font-medium shadow-md">
-                            Fala, Gestor! O que vamos escalar hoje? Me mande suas dúvidas ou métricas.
+                            Fala, Gestor! Sou sua IA treinada em tráfego. Mande suas métricas ou dúvidas de escala. O que vamos analisar?
                         </div>
                     </div>
                 </div>
                 <div class="p-4 bg-white border-t border-slate-100">
                     <div class="relative flex items-center">
                         <input type="text" id="chat-input" placeholder="Pergunte sobre sua estratégia..." class="w-full p-4 pr-14 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-xs text-slate-700 outline-none">
-                        <button onclick="sendMessage()" class="absolute right-2 bg-blue-600 p-3 rounded-xl text-white active:scale-90 transition-all">
+                        <button onclick="sendMessage()" class="absolute right-2 bg-blue-600 p-3 rounded-xl text-white shadow-lg active:scale-90 transition-all">
                             <i data-lucide="send" class="w-4 h-4"></i>
                         </button>
                     </div>
@@ -237,14 +270,14 @@
 
         const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
-        // LOGICA CHAT IA (CHAMANDO VERCEL)
+        // LÓGICA CHAT IA (SERVERLESS VERCEL)
         let historicoChat = [];
-        const SYSTEM_PROMPT = "Você é o Gestor IA, especialista sênior em tráfego pago. Respostas curtas e técnicas.";
+        const SYSTEM_PROMPT = "Você é o Gestor IA, um estrategista sênior em tráfego pago. Responda de forma técnica, curta e focada em ROI/Escala.";
 
         function clearChat() {
             if (confirm("Resetar conversa?")) {
                 historicoChat = [];
-                document.getElementById('chat-messages').innerHTML = '<div class="bg-blue-600 text-white p-4 rounded-3xl text-xs font-medium shadow-md">O que vamos analisar agora?</div>';
+                document.getElementById('chat-messages').innerHTML = '<div class="bg-blue-600 text-white p-4 rounded-3xl text-xs font-medium shadow-md">Histórico limpo. Qual o novo desafio?</div>';
             }
         }
 
@@ -257,10 +290,9 @@
             input.value = '';
             historicoChat.push({ role: "user", parts: [{ text: message }] });
 
-            const typingId = appendMessage('bot', 'Digitando...');
+            const typingId = appendMessage('bot', 'Analisando dados...');
 
             try {
-                // Aqui o segredo: ele chama a pasta local /api/chat que criamos
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -277,14 +309,14 @@
                 if (historicoChat.length > 10) historicoChat.splice(0, 2);
 
                 updateBotMessage(typingId, aiResponse);
-            } catch (e) { updateBotMessage(typingId, "Erro ao conectar com a IA."); }
+            } catch (e) { updateBotMessage(typingId, "Erro ao conectar com a IA especialista."); }
         }
 
         function appendMessage(type, text) {
             const container = document.getElementById('chat-messages');
             const id = 'msg-' + Date.now();
             const align = type === 'user' ? 'items-end ml-auto' : 'items-start';
-            const color = type === 'user' ? 'bg-slate-800 text-white' : 'bg-blue-600 text-white';
+            const color = type === 'user' ? 'bg-slate-800 text-white rounded-tr-none' : 'bg-blue-600 text-white rounded-tl-none';
             const html = `<div id="${id}" class="flex flex-col gap-1 max-w-[85%] ${align} animate-in slide-in-from-bottom-2 duration-300"><div class="${color} p-4 rounded-3xl text-xs font-medium shadow-md">${text}</div></div>`;
             container.insertAdjacentHTML('beforeend', html);
             container.scrollTop = container.scrollHeight;
@@ -297,7 +329,7 @@
             document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
         }
 
-        // OUTROS CALCULOS (MANTIDOS)
+        // CÁLCULOS DAS FERRAMENTAS
         function calcTax() {
             const v = parseFloat(document.getElementById('taxInput').value) || 0;
             const rate = (parseFloat(document.getElementById('taxRate').value) || 0) / 100;
@@ -305,7 +337,8 @@
             document.getElementById('taxJuros').innerText = "+ " + fmt.format(j);
             document.getElementById('taxTotal').innerText = fmt.format(v + j);
         }
-        function copyTax() { const v = document.getElementById('taxTotal').innerText; if(v !== "R$ 0,00") { navigator.clipboard.writeText(v); alert("Copiado!"); } }
+        function copyTax() { const val = document.getElementById('taxTotal').innerText; if (val !== "R$ 0,00") { navigator.clipboard.writeText(val); alert("🚀 Total Copiado!"); } }
+
         function calcMMF() {
             const v = parseFloat(document.getElementById('mmfVendas').value) || 0;
             const m = (parseFloat(document.getElementById('mmfMargem').value) || 0) / 100;
@@ -316,10 +349,11 @@
                 const box = document.getElementById('mmfResultBox');
                 box.classList.remove('hidden');
                 document.getElementById('mmfValue').innerText = fmt.format(mmf);
-                box.className = mmf > 0 ? "rounded-[2.5rem] p-10 bg-emerald-600 mt-6 text-white" : "rounded-[2.5rem] p-10 bg-rose-600 mt-6 text-white";
-                document.getElementById('mmfLabel').innerText = mmf > 0 ? "LUCRO REAL" : "PREJUÍZO";
+                box.className = mmf > 0 ? "rounded-[2.5rem] p-10 text-white text-center shadow-lg mt-6 bg-emerald-600" : "rounded-[2.5rem] p-10 text-white text-center shadow-lg mt-6 bg-rose-600";
+                document.getElementById('mmfLabel').innerText = mmf > 0 ? "🚨 LUCRO REAL (MMF POSITIVO)" : "⚠️ PREJUÍZO (MMF NEGATIVO)";
             }
         }
+
         function calcStress() {
             const avg = parseFloat(document.getElementById('stressAvg').value) || 0;
             const now = parseFloat(document.getElementById('stressNow').value) || 0;
@@ -328,22 +362,36 @@
                 const box = document.getElementById('stressBox');
                 box.classList.remove('hidden');
                 document.getElementById('stressPerc').innerText = (diff > 0 ? "+" : "") + diff.toFixed(1) + "%";
-                if(diff <= 20) { box.className = "bg-emerald-600 rounded-[2.5rem] p-8 text-white mt-4"; document.getElementById('stressStatus').innerText = "NORMAL"; }
-                else if(diff <= 50) { box.className = "bg-amber-500 rounded-[2.5rem] p-8 text-white mt-4"; document.getElementById('stressStatus').innerText = "ALERTA"; }
-                else { box.className = "bg-rose-600 rounded-[2.5rem] p-8 text-white mt-4"; document.getElementById('stressStatus').innerText = "ANOMALIA"; }
+                if (diff <= 20) {
+                    box.className = "rounded-[2.5rem] p-8 text-white text-center shadow-lg bg-emerald-600 mt-4";
+                    document.getElementById('stressStatus').innerText = "🟢 Ruído de Leilão (Normal)";
+                    document.getElementById('stressMsg').innerText = "Variação normal de leilão. Não tome decisões precipitadas.";
+                } else if (diff <= 50) {
+                    box.className = "rounded-[2.5rem] p-8 text-white text-center shadow-lg bg-amber-500 mt-4";
+                    document.getElementById('stressStatus').innerText = "🟡 Alerta de Performance";
+                    document.getElementById('stressMsg').innerText = "Variação acima da média. Monitore o CTR e CPM.";
+                } else {
+                    box.className = "rounded-[2.5rem] p-8 text-white text-center shadow-lg bg-rose-600 mt-4";
+                    document.getElementById('stressStatus').innerText = "🔴 Anomalia Detectada";
+                    document.getElementById('stressMsg').innerText = "Possível saturação ou quebra de funil. Intervenção sugerida.";
+                }
             }
         }
+
         function calcPacing() {
             const t = parseFloat(document.getElementById('pTotal').value) || 0;
             const g = parseFloat(document.getElementById('pGasto').value) || 0;
             const d = parseInt(document.getElementById('pDia').value) || 1;
             if(t > 0) { document.getElementById('pacingBox').classList.remove('hidden'); const ideal = (t - g) / (31 - d); document.getElementById('pIdeal').innerText = fmt.format(ideal > 0 ? ideal : 0); }
         }
+
         function calcVid() {
             const i = parseFloat(document.getElementById('vImp').value) || 0;
             const p = parseFloat(document.getElementById('v3s').value) || 0;
             if(i > 0) { const hook = (p / i) * 100; document.getElementById('rHook').innerText = hook.toFixed(1) + "%"; document.getElementById('rHold').innerText = (hook * 0.4).toFixed(1) + "%"; }
         }
+
+        document.getElementById('chat-input')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
     </script>
 </body>
 </html>
