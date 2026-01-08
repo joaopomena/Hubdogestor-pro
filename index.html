@@ -275,10 +275,15 @@
 
         const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
-        // IA CHAT LOGIC (SERVERLESS)
+        // IA CHAT LOGIC (ULTRA SÊNIOR)
         let historicoChat = [];
-        const SYSTEM_PROMPT = "Você é o Gestor IA, estrategista sênior em tráfego pago. Respostas curtas, técnicas e diretas.";
-
+        const SYSTEM_PROMPT = `Você é o Diretor de Performance Sênior do GestorHub PRO. Especialista em Análise Contextual e CRO. 
+        REGRAS DE OURO: 
+        1. Nunca dê diagnóstico sem saber o NICHO e TICKET. Se faltar, peça. 
+        2. Analise Landing Pages e E-commerce focando em COPY, OFERTA e VELOCIDADE. 
+        3. Use métricas reais (CTR, CPC, CR) e rejeite métricas de vaidade. 
+        4. Domine estratégias de Meta, Google (PMAX/Search) e TikTok Ads.`;
+        
         function clearChat() {
             if (confirm("Resetar conversa?")) {
                 historicoChat = [];
@@ -397,3 +402,4 @@
     </script>
 </body>
 </html>
+
