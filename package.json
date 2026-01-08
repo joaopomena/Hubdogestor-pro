@@ -1,0 +1,12 @@
+{
+  "name": "gestorhub-pro",
+  "version": "1.0.0",
+  "description": "Servidor Node.js para GestorHub PRO",
+  "main": "api/chat.js",
+  "scripts": {
+    "start": "node api/chat.js"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  }
+}
