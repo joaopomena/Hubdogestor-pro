@@ -4,12 +4,11 @@ export const config = {
 
 export default async function handler(req, res) {
     const API_KEY = process.env.GEMINI_API_KEY;
-    if (!API_KEY) return res.status(500).json({ error: 'Chave não configurada.' });
+    if (!API_KEY) return res.status(500).json({ error: 'Chave não encontrada.' });
 
     try {
-        const { contents, system_instruction } = req.body;
+        const { contents } = req.body;
         const model = "gemini-2.5-flash"; 
-        // Endpoint de streaming para manter a conexão viva
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${API_KEY}`;
 
         const response = await fetch(url, {
@@ -17,7 +16,7 @@ export default async function handler(req, res) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: contents,
-                system_instruction: system_instruction,
+                // FERRAMENTA QUE PERMITE LER O SITE
                 tools: [{ google_search: {} }] 
             })
         });
@@ -35,8 +34,7 @@ export default async function handler(req, res) {
             res.write(value);
         }
         res.end();
-
     } catch (error) {
-        return res.status(500).json({ error: 'Erro no servidor.' });
+        return res.status(500).json({ error: 'Erro de conexão.' });
     }
 }
