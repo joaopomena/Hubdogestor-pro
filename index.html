@@ -20,12 +20,10 @@
         .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         .bell-curve { width: 100%; height: 60px; background: linear-gradient(90deg, #10b981 0%, #10b981 60%, #f59e0b 60%, #f59e0b 85%, #ef4444 85%); border-radius: 8px; opacity: 0.2; }
-
         .markdown-content p { margin-bottom: 0.5rem; }
         .markdown-content ul, .markdown-content ol { margin-bottom: 0.5rem; padding-left: 1rem; list-style-type: disc; }
         .markdown-content li { margin-bottom: 0.25rem; }
-        .markdown-content strong { font-weight: 800; }
-        
+        .markdown-content strong { font-weight: 800; color: inherit; }
         .report-card h2 { color: #e11d48; font-weight: 800; text-transform: uppercase; font-size: 1.1rem; margin-top: 1.5rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; }
         .report-card li { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 12px; margin-bottom: 8px; list-style: none; }
     </style>
@@ -58,13 +56,10 @@
     </header>
 
     <main class="max-w-md mx-auto p-4 mt-6">
-
         <div id="taxa" class="tab-content active space-y-6">
             <div class="glass rounded-[2.5rem] shadow-2xl border border-white p-8">
                 <div class="text-center mb-8">
-                    <div class="bg-blue-600 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-200">
-                        <i data-lucide="calculator" class="text-white w-7 h-7"></i>
-                    </div>
+                    <div class="bg-blue-600 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-200"><i data-lucide="calculator" class="text-white w-7 h-7"></i></div>
                     <h1 class="text-2xl font-black text-slate-800 tracking-tighter uppercase">Taxa de Impostos</h1>
                     <p class="text-slate-400 text-[10px] font-bold uppercase mt-1">Cálculo de Verba Bruta + Taxa</p>
                 </div>
@@ -189,7 +184,7 @@
                         <p class="text-[11px] font-black text-slate-600 uppercase">Analisando landing page...</p>
                     </div>
                     <div id="lp-result-container" class="hidden space-y-4">
-                        <div id="lp-report-pdf" class="bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm report-card markdown-content"></div>
+                        <div id="lp-report-pdf" class="bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm report-card markdown-content text-slate-800"></div>
                         <button onclick="baixarPDFAnalise()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-black transition-all flex items-center justify-center gap-2">
                             <i data-lucide="download" class="w-4 h-4"></i> Baixar Relatório (PDF)
                         </button>
@@ -215,7 +210,6 @@
                 </div>
             </div>
         </div>
-
     </main>
 
     <footer class="text-center px-6 mt-12">
@@ -260,7 +254,7 @@
             return accumulatedText;
         }
 
-        // LÓGICA DE ABAS (CORRIGIDO PARA VOLTAR A FUNCIONAR O CLIQUE)
+        // LÓGICA DE ABAS (CORRIGIDO)
         function openTab(tabId) {
             const contents = document.querySelectorAll('.tab-content');
             const buttons = document.querySelectorAll('nav button');
@@ -274,16 +268,9 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // LÓGICA DO CHAT
+        // IA CHAT LOGIC (STREAMING)
         let historicoChat = [];
         const SYSTEM_PROMPT = "Você é o Diretor de Performance do GestorHub PRO. Especialista em Tráfego Pago e CRO. 1. Nunca dê diagnóstico sem saber o NICHO e TICKET. 2. Analise Landing Pages focando em COPY, OFERTA e FUNIL. 3. Respostas técnicas e diretas.";
-
-        function clearChat() {
-            if (confirm("Resetar conversa?")) {
-                historicoChat = [];
-                document.getElementById('chat-messages').innerHTML = '<div class="bg-blue-600 text-white p-4 rounded-3xl text-xs font-medium shadow-md">Pronto para a nova análise. O que vamos escalar?</div>';
-            }
-        }
 
         async function sendMessage() {
             const input = document.getElementById('chat-input');
@@ -314,7 +301,7 @@
             } catch (e) { updateBotMessage(typingId, "Erro de conexão. Tente novamente."); }
         }
 
-        // LÓGICA DO ANALISADOR LP
+        // LÓGICA DO ANALISADOR LP (CORRIGIDO PARA NÃO FICAR EM BRANCO)
         async function gerarAnaliseLP() {
             const urlInput = document.getElementById('lp-url').value.trim();
             const loader = document.getElementById('lp-loader');
@@ -327,8 +314,9 @@
             resultBox.classList.add('hidden');
             reportDiv.innerHTML = ""; 
 
-            const promptLP = `USE A FERRAMENTA DE BUSCA PARA ACESSAR: ${urlInput}. 
-            Você deve fazer uma Auditoria de CRO. Se não conseguir acessar, descreva as melhores práticas para uma página de vendas.
+            // Prompt imperativo para garantir o uso da busca
+            const promptLP = `USE A FERRAMENTA DE BUSCA PARA ACESSAR E ANALISAR: ${urlInput}. 
+            Retorne uma Auditoria de CRO em Markdown. 
             ESTRUTURA:
             ## 🎯 Análise Honesta da Sua Landing Page
             ## 💡 8 Ideias de CRO Impactantes
@@ -344,25 +332,16 @@
                 await readStream(response, (text) => {
                     loader.classList.add('hidden');
                     resultBox.classList.remove('hidden');
-                    reportDiv.className = "bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm report-card markdown-content text-slate-800";
                     reportDiv.innerHTML = marked.parse(text);
                 });
-            } catch (e) {
-                alert("Erro ao analisar página.");
-                loader.classList.add('hidden');
-            }
+            } catch (e) { alert("Erro ao conectar."); loader.classList.add('hidden'); }
         }
 
-        function baixarPDFAnalise() {
-            const element = document.getElementById('lp-report-pdf');
-            const opt = {
-                margin: 10,
-                filename: 'Auditoria-GestorHub.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 3 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-            html2pdf().set(opt).from(element).save();
+        function clearChat() {
+            if (confirm("Resetar conversa?")) {
+                historicoChat = [];
+                document.getElementById('chat-messages').innerHTML = '<div class="bg-blue-600 text-white p-4 rounded-3xl text-xs font-medium shadow-md">Pronto para a nova análise.</div>';
+            }
         }
 
         function appendMessage(type, text) {
@@ -370,8 +349,7 @@
             const id = 'msg-' + Math.random().toString(36).substr(2, 9);
             const align = type === 'user' ? 'items-end ml-auto' : 'items-start';
             const color = type === 'user' ? 'bg-slate-800 text-white rounded-tr-none' : 'bg-blue-600 text-white rounded-tl-none';
-            const html = `<div id="${id}" class="flex flex-col gap-1 max-w-[85%] ${align} animate-in slide-in-from-bottom-2 duration-300"><div class="${color} p-4 rounded-3xl text-xs font-medium shadow-md ${type === 'bot' ? 'markdown-content' : ''}">${text}</div></div>`;
-            container.insertAdjacentHTML('beforeend', html);
+            container.insertAdjacentHTML('beforeend', `<div id="${id}" class="flex flex-col gap-1 max-w-[85%] ${align}"><div class="${color} p-4 rounded-3xl text-xs font-medium shadow-md ${type === 'bot' ? 'markdown-content' : ''}">${text}</div></div>`);
             container.scrollTop = container.scrollHeight;
             return id;
         }
@@ -382,54 +360,19 @@
             document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
         }
 
-        const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+        function baixarPDFAnalise() {
+            const element = document.getElementById('lp-report-pdf');
+            const opt = { margin: 10, filename: 'Auditoria-GestorHub.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 3 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+            html2pdf().set(opt).from(element).save();
+        }
 
-        function calcTax() {
-            const v = parseFloat(document.getElementById('taxInput').value) || 0;
-            const rate = (parseFloat(document.getElementById('taxRate').value) || 0) / 100;
-            const j = v * rate;
-            document.getElementById('taxJuros').innerText = "+ " + fmt.format(j);
-            document.getElementById('taxTotal').innerText = fmt.format(v + j);
-        }
+        const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+        function calcTax() { const v = parseFloat(document.getElementById('taxInput').value) || 0; const rate = (parseFloat(document.getElementById('taxRate').value) || 0) / 100; const j = v * rate; document.getElementById('taxJuros').innerText = "+ " + fmt.format(j); document.getElementById('taxTotal').innerText = fmt.format(v + j); }
         function copyTax() { const val = document.getElementById('taxTotal').innerText; if (val !== "R$ 0,00") { navigator.clipboard.writeText(val); alert("Copiado!"); } }
-        function calcMMF() {
-            const v = parseFloat(document.getElementById('mmfVendas').value) || 0;
-            const m = (parseFloat(document.getElementById('mmfMargem').value) || 0) / 100;
-            const a = parseFloat(document.getElementById('mmfAds').value) || 0;
-            const f = parseFloat(document.getElementById('mmfFee').value) || 0;
-            if(v > 0) {
-                const mmf = (v * m) - a - f;
-                const box = document.getElementById('mmfResultBox');
-                box.classList.remove('hidden');
-                document.getElementById('mmfValue').innerText = fmt.format(mmf);
-                box.className = mmf > 0 ? "rounded-[2.5rem] p-10 text-white text-center shadow-lg mt-6 bg-emerald-600" : "rounded-[2.5rem] p-10 text-white text-center shadow-lg mt-6 bg-rose-600";
-                document.getElementById('mmfLabel').innerText = mmf > 0 ? "🚨 LUCRO REAL" : "⚠️ PREJUÍZO";
-            }
-        }
-        function calcStress() {
-            const avg = parseFloat(document.getElementById('stressAvg').value) || 0;
-            const now = parseFloat(document.getElementById('stressNow').value) || 0;
-            if(avg > 0 && now > 0) {
-                const diff = ((now - avg) / avg) * 100;
-                const box = document.getElementById('stressBox');
-                box.classList.remove('hidden');
-                document.getElementById('stressPerc').innerText = (diff > 0 ? "+" : "") + diff.toFixed(1) + "%";
-                if(diff <= 20) { box.className = "rounded-[2.5rem] p-8 text-white mt-4 bg-emerald-600"; document.getElementById('stressStatus').innerText = "🟢 NORMAL"; }
-                else if(diff <= 50) { box.className = "rounded-[2.5rem] p-8 text-white mt-4 bg-amber-500"; document.getElementById('stressStatus').innerText = "🟡 ALERTA"; }
-                else { box.className = "rounded-[2.5rem] p-8 text-white mt-4 bg-rose-600"; document.getElementById('stressStatus').innerText = "🔴 ANOMALIA"; }
-            }
-        }
-        function calcPacing() {
-            const t = parseFloat(document.getElementById('pTotal').value) || 0;
-            const g = parseFloat(document.getElementById('pGasto').value) || 0;
-            const d = parseInt(document.getElementById('pDia').value) || 1;
-            if(t > 0) { document.getElementById('pacingBox').classList.remove('hidden'); const ideal = (t - g) / (31 - d); document.getElementById('pIdeal').innerText = fmt.format(ideal > 0 ? ideal : 0); }
-        }
-        function calcVid() {
-            const i = parseFloat(document.getElementById('vImp').value) || 0;
-            const p = parseFloat(document.getElementById('v3s').value) || 0;
-            if(i > 0) { const hook = (p / i) * 100; document.getElementById('rHook').innerText = hook.toFixed(1) + "%"; document.getElementById('rHold').innerText = (hook * 0.4).toFixed(1) + "%"; }
-        }
+        function calcMMF() { const v = parseFloat(document.getElementById('mmfVendas').value) || 0; const m = (parseFloat(document.getElementById('mmfMargem').value) || 0) / 100; const a = parseFloat(document.getElementById('mmfAds').value) || 0; const f = parseFloat(document.getElementById('mmfFee').value) || 0; if(v > 0) { const mmf = (v * m) - a - f; const box = document.getElementById('mmfResultBox'); box.classList.remove('hidden'); document.getElementById('mmfValue').innerText = fmt.format(mmf); box.className = mmf > 0 ? "rounded-[2.5rem] p-10 text-white text-center shadow-lg mt-6 bg-emerald-600" : "rounded-[2.5rem] p-10 text-white text-center shadow-lg mt-6 bg-rose-600"; document.getElementById('mmfLabel').innerText = mmf > 0 ? "🚨 LUCRO REAL" : "⚠️ PREJUÍZO"; } }
+        function calcStress() { const avg = parseFloat(document.getElementById('stressAvg').value) || 0; const now = parseFloat(document.getElementById('stressNow').value) || 0; if(avg > 0 && now > 0) { const diff = ((now - avg) / avg) * 100; const box = document.getElementById('stressBox'); box.classList.remove('hidden'); document.getElementById('stressPerc').innerText = (diff > 0 ? "+" : "") + diff.toFixed(1) + "%"; if(diff <= 20) { box.className = "rounded-[2.5rem] p-8 text-white mt-4 bg-emerald-600"; document.getElementById('stressStatus').innerText = "🟢 NORMAL"; } else if(diff <= 50) { box.className = "rounded-[2.5rem] p-8 text-white mt-4 bg-amber-500"; document.getElementById('stressStatus').innerText = "🟡 ALERTA"; } else { box.className = "rounded-[2.5rem] p-8 text-white mt-4 bg-rose-600"; document.getElementById('stressStatus').innerText = "🔴 ANOMALIA"; } } }
+        function calcPacing() { const t = parseFloat(document.getElementById('pTotal').value) || 0; const g = parseFloat(document.getElementById('pGasto').value) || 0; const d = parseInt(document.getElementById('pDia').value) || 1; if(t > 0) { document.getElementById('pacingBox').classList.remove('hidden'); const ideal = (t - g) / (31 - d); document.getElementById('pIdeal').innerText = fmt.format(ideal > 0 ? ideal : 0); } }
+        function calcVid() { const i = parseFloat(document.getElementById('vImp').value) || 0; const p = parseFloat(document.getElementById('v3s').value) || 0; if(i > 0) { const hook = (p / i) * 100; document.getElementById('rHook').innerText = hook.toFixed(1) + "%"; document.getElementById('rHold').innerText = (hook * 0.4).toFixed(1) + "%"; } }
         document.getElementById('chat-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
     </script>
 </body>
