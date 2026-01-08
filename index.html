@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -20,11 +21,17 @@
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         .bell-curve { width: 100%; height: 60px; background: linear-gradient(90deg, #10b981 0%, #10b981 60%, #f59e0b 60%, #f59e0b 85%, #ef4444 85%); border-radius: 8px; opacity: 0.2; }
 
-        /* ADICIONADO: Estilos para que as listas e negritos da IA fiquem organizados */
         .markdown-content p { margin-bottom: 0.5rem; }
         .markdown-content ul, .markdown-content ol { margin-bottom: 0.5rem; padding-left: 1rem; list-style-type: disc; }
         .markdown-content li { margin-bottom: 0.25rem; }
         .markdown-content strong { font-weight: 800; }
+
+        /* Estilos do Relatório Profissional (Inspirado no print) */
+        .report-card h2 { color: #e11d48; font-weight: 800; text-transform: uppercase; font-size: 1.1rem; margin-top: 1.5rem; display: flex; align-items: center; gap: 8px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; }
+        .report-card p { color: #334155; font-size: 0.9rem; line-height: 1.6; margin-top: 8px; }
+        .report-card ul { margin-top: 12px; }
+        .report-card li { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 12px; margin-bottom: 8px; list-style: none; }
+        .report-card strong { color: #0f172a; }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen pb-20">
@@ -48,6 +55,7 @@
                 <button onclick="openTab('stress')" id="btn-stress" class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Analisador Stress</button>
                 <button onclick="openTab('pacing')" id="btn-pacing" class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Pacing</button>
                 <button onclick="openTab('video')" id="btn-video" class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Vídeo</button>
+                <button onclick="openTab('analisador')" id="btn-analisador" class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Analisador LP 🚀</button>
                 <button onclick="openTab('chat')" id="btn-chat" class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Gestor IA 🤖</button>
             </div>
         </nav>
@@ -168,6 +176,40 @@
             </div>
         </div>
 
+        <div id="analisador" class="tab-content space-y-6">
+            <div class="glass rounded-[2.5rem] shadow-2xl border border-white p-8">
+                <div class="text-center mb-8">
+                    <div class="bg-rose-600 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <i data-lucide="search" class="text-white w-7 h-7"></i>
+                    </div>
+                    <h1 class="text-2xl font-black text-slate-800 tracking-tighter uppercase leading-none">Analisador de Landing Pages</h1>
+                    <p class="text-rose-600 text-[10px] font-black uppercase mt-2 tracking-widest">MARKETING É VENDA</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="relative flex items-center">
+                        <input type="text" id="lp-url" placeholder="https://suapagina.com.br" class="w-full p-4 pr-14 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-xs text-slate-700 outline-none focus:border-rose-500">
+                        <button onclick="gerarAnaliseLP()" class="absolute right-2 bg-rose-600 p-3 rounded-xl text-white active:scale-90 transition-all shadow-lg">
+                            <i data-lucide="zap" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    <div id="lp-loader" class="hidden py-10 text-center space-y-4">
+                        <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-rose-600 border-t-transparent"></div>
+                        <p class="text-[11px] font-black text-slate-600 uppercase">Nossa IA está analisando sua landing page...</p>
+                    </div>
+
+                    <div id="lp-result-container" class="hidden space-y-4">
+                        <div id="lp-report-pdf" class="bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm report-card">
+                            </div>
+                        <button onclick="baixarPDFAnalise()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-black transition-all flex items-center justify-center gap-2">
+                            <i data-lucide="download" class="w-4 h-4"></i> Baixar Relatório Completo (PDF)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="chat" class="tab-content space-y-6">
             <div class="glass rounded-[2.5rem] shadow-2xl border border-white flex flex-col h-[550px] overflow-hidden">
                 <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
@@ -197,8 +239,6 @@
 
     <script>
         lucide.createIcons();
-        
-        // ADICIONADO: Configuração para quebras de linha automáticas no Markdown
         marked.setOptions({ breaks: true, gfm: true });
 
         function openTab(tabId) {
@@ -216,7 +256,61 @@
 
         const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
-        // IA CHAT LOGIC (VERSÃO PRESERVADA COM FORMATAÇÃO)
+        // LOGICA ANALISADOR LP
+        async function gerarAnaliseLP() {
+            const urlInput = document.getElementById('lp-url').value.trim();
+            const loader = document.getElementById('lp-loader');
+            const resultBox = document.getElementById('lp-result-container');
+            const reportDiv = document.getElementById('lp-report-pdf');
+
+            if (!urlInput) return alert("Insira uma URL válida");
+
+            loader.classList.remove('hidden');
+            resultBox.classList.add('hidden');
+
+            const promptRelatorio = `Faça uma auditoria de CRO completa da página: ${urlInput}.
+            Retorne um relatório robusto em Markdown com estas seções:
+            1. ## 🎯 Análise Honesta da Sua Landing Page
+               (Analise a clareza, promessa e primeira impressão)
+            2. ## 💡 8 Ideias de CRO Impactantes
+               (Liste 8 melhorias práticas com explicações de impacto)
+            3. ## ✍️ Exemplo Prático: Nova Headline Matadora
+               (Crie uma headline baseada em gatilhos mentais fortes)
+            Foque em marketing de resposta direta.`;
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: promptRelatorio }] }] })
+                });
+
+                const data = await response.json();
+                const text = data.candidates[0].content.parts[0].text;
+                
+                reportDiv.innerHTML = `<div class="text-center mb-6"><span class="bg-rose-100 text-rose-600 px-3 py-1 rounded-full text-[9px] font-black uppercase">Relatório Gerado em ${new Intl.DateTimeFormat('pt-BR').format(new Date())}</span></div>` + marked.parse(text);
+                
+                loader.classList.add('hidden');
+                resultBox.classList.remove('hidden');
+            } catch (e) {
+                alert("Erro ao conectar com a IA");
+                loader.classList.add('hidden');
+            }
+        }
+
+        function baixarPDFAnalise() {
+            const element = document.getElementById('lp-report-pdf');
+            const opt = {
+                margin: 10,
+                filename: 'Relatorio-CRO-GestorHub.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 3 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        // IA CHAT LOGIC
         let historicoChat = [];
         const SYSTEM_PROMPT = "Você é o Diretor de Performance do GestorHub PRO. Especialista em Tráfego Pago e CRO. 1. Nunca dê diagnóstico sem saber o NICHO e TICKET. 2. Analise Landing Pages focando em COPY, OFERTA e FUNIL. 3. Respostas técnicas e diretas.";
 
@@ -242,23 +336,14 @@
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-                        contents: historicoChat
-                    })
+                    body: JSON.stringify({ contents: historicoChat })
                 });
 
                 const data = await response.json();
-                if (data.error) {
-                    updateBotMessage(typingId, "Erro: " + data.error);
-                    return;
-                }
-
                 const aiResponse = data.candidates[0].content.parts[0].text;
                 historicoChat.push({ role: "model", parts: [{ text: aiResponse }] });
-                if (historicoChat.length > 12) historicoChat.splice(0, 2);
                 updateBotMessage(typingId, aiResponse);
-            } catch (e) { updateBotMessage(typingId, "Erro de rede. Verifique os logs da Vercel."); }
+            } catch (e) { updateBotMessage(typingId, "Erro de rede."); }
         }
 
         function appendMessage(type, text) {
@@ -266,10 +351,7 @@
             const id = 'msg-' + Math.random().toString(36).substr(2, 9);
             const align = type === 'user' ? 'items-end ml-auto' : 'items-start';
             const color = type === 'user' ? 'bg-slate-800 text-white rounded-tr-none' : 'bg-blue-600 text-white rounded-tl-none';
-            
-            // Adicionado a classe 'markdown-content' para o bot
             const html = `<div id="${id}" class="flex flex-col gap-1 max-w-[85%] ${align} animate-in slide-in-from-bottom-2 duration-300"><div class="${color} p-4 rounded-3xl text-xs font-medium shadow-md ${type === 'bot' ? 'markdown-content' : ''}">${text}</div></div>`;
-            
             container.insertAdjacentHTML('beforeend', html);
             container.scrollTop = container.scrollHeight;
             return id;
@@ -277,14 +359,11 @@
 
         function updateBotMessage(id, text) {
             const msgDiv = document.querySelector(`[id="${id}"] div`);
-            if (msgDiv) {
-                // ALTERADO: Agora usa marked.parse para renderizar o texto bonito
-                msgDiv.innerHTML = marked.parse(text);
-            }
+            if (msgDiv) msgDiv.innerHTML = marked.parse(text);
             document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
         }
 
-        // CALCULADORES (PRESERVADOS EXATAMENTE COMO VOCÊ ENVIOU)
+        // CALCULADORES
         function calcTax() {
             const v = parseFloat(document.getElementById('taxInput').value) || 0;
             const rate = (parseFloat(document.getElementById('taxRate').value) || 0) / 100;
