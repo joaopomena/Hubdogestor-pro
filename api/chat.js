@@ -1,5 +1,5 @@
 export const config = {
-    maxDuration: 60, 
+    maxDuration: 60, // Aumenta o tempo limite na Vercel
 };
 
 export default async function handler(req, res) {
@@ -16,13 +16,13 @@ export default async function handler(req, res) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: contents,
-                // FERRAMENTA QUE PERMITE À IA "VER" O SITE
-                tools: [{ google_search: {} }] 
+                tools: [{ google_search: {} }] // Ativa a navegação web
             })
         });
 
+        // Configuração de cabeçalhos para Streaming estável
         res.setHeader('Content-Type', 'text/event-stream');
-        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Cache-Control', 'no-cache, no-transform');
         res.setHeader('Connection', 'keep-alive');
 
         const reader = response.body.getReader();
@@ -31,10 +31,14 @@ export default async function handler(req, res) {
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-            res.write(value);
+            
+            const chunk = decoder.decode(value, { stream: true });
+            res.write(chunk); // Envia o pedaço da resposta para o navegador
         }
         res.end();
+
     } catch (error) {
-        return res.status(500).json({ error: 'Erro de conexão.' });
+        console.error("Erro no chat.js:", error);
+        return res.status(500).end();
     }
 }
