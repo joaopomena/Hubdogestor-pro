@@ -5,13 +5,13 @@ const fetch = require('node-fetch');
 
 const PORT = process.env.PORT || 8080;
 
-// 1. MAPEIA TODAS AS CHAVES DISPONÍVEIS NAS VARIÁVEIS DO ZEABUR
+// 1. MAPEIA TODAS AS CHAVES DISPONÍVEIS
 const keys = [
     process.env.GEMINI_KEY_1,
     process.env.GEMINI_KEY_2,
     process.env.GEMINI_KEY_3,
-    process.env.GEMINI_API_KEY // Mantém a antiga como backup
-].filter(k => k && k !== ""); // Filtra apenas as que existem
+    process.env.GEMINI_API_KEY
+].filter(k => k && k !== "");
 
 let currentKeyIndex = 0;
 
@@ -20,49 +20,58 @@ const server = http.createServer(async (req, res) => {
         let body = '';
         req.on('data', chunk => { body += chunk.toString(); });
         req.on('end', async () => {
-            try {
-                // 2. LÓGICA DE RODÍZIO: SELECIONA A PRÓXIMA CHAVE
-                if (keys.length === 0) throw new Error("Nenhuma chave API configurada.");
-                
+            const parsedBody = JSON.parse(body);
+            let response;
+            let attempt = 0;
+            const maxAttempts = keys.length;
+
+            // LÓGICA DE TENTATIVA AUTOMÁTICA EM TODAS AS CHAVES
+            while (attempt < maxAttempts) {
                 const API_KEY = keys[currentKeyIndex];
-                console.log(`Usando a chave ${currentKeyIndex + 1} de ${keys.length}`);
-                
-                // Prepara o índice para a próxima rodada
-                currentKeyIndex = (currentKeyIndex + 1) % keys.length;
+                console.log(`Tentativa ${attempt + 1}: Usando chave ${currentKeyIndex + 1} de ${keys.length}`);
 
-                const parsedBody = JSON.parse(body);
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse&key=${API_KEY}`;
+                try {
+                    // Nota: Usando gemini-2.5-flash conforme sua preferência
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse&key=${API_KEY}`;
 
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        contents: parsedBody.contents,
-                        system_instruction: parsedBody.system_instruction,
-                        tools: [{ google_search: {} }] 
-                    })
-                });
+                    response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            contents: parsedBody.contents,
+                            system_instruction: parsedBody.system_instruction,
+                            tools: [{ google_search: {} }] 
+                        })
+                    });
 
-                if (!response.ok) {
-                    const errorMsg = await response.text();
-                    console.error("Erro na API do Google:", errorMsg);
-                    res.writeHead(500);
-                    return res.end("Limite de cota atingido. Tente novamente.");
+                    if (response.ok) {
+                        // CHAVE FUNCIONOU: Envia o stream e sai do loop
+                        res.writeHead(200, { 'Content-Type': 'text/event-stream' });
+                        response.body.on('data', chunk => res.write(chunk));
+                        response.body.on('end', () => res.end());
+                        return; 
+                    } else {
+                        // CHAVE FALHOU (Cota ou erro): Passa para a próxima
+                        const errorData = await response.text();
+                        console.warn(`Chave ${currentKeyIndex + 1} falhou. Tentando próxima...`);
+                        currentKeyIndex = (currentKeyIndex + 1) % keys.length;
+                        attempt++;
+                    }
+                } catch (error) {
+                    console.error("Erro na requisição:", error.message);
+                    currentKeyIndex = (currentKeyIndex + 1) % keys.length;
+                    attempt++;
                 }
-
-                res.writeHead(200, { 'Content-Type': 'text/event-stream' });
-                response.body.on('data', chunk => res.write(chunk));
-                response.body.on('end', () => res.end());
-
-            } catch (error) {
-                console.error("Erro interno:", error.message);
-                res.writeHead(500);
-                res.end("Erro interno no servidor.");
             }
+
+            // SE CHEGAR AQUI, TODAS AS CHAVES FALHARAM
+            res.writeHead(500);
+            res.end("Todas as chaves da API estao sem cota ou instaveis. Tente novamente em instantes.");
         });
         return;
     }
 
+    // Servir o index.html
     const indexPath = path.join(process.cwd(), 'index.html');
     if (fs.existsSync(indexPath)) {
         res.writeHead(200, { 'Content-Type': 'text/html' });
@@ -73,4 +82,4 @@ const server = http.createServer(async (req, res) => {
     }
 });
 
-server.listen(PORT, () => console.log(`Servidor de Rodízio ativo com ${keys.length} chaves.`));
+server.listen(PORT, () => console.log(`Servidor PRO ativo com ${keys.length} chaves e auto-retry.`));
