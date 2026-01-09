@@ -21,12 +21,13 @@
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         .bell-curve { width: 100%; height: 60px; background: linear-gradient(90deg, #10b981 0%, #10b981 60%, #f59e0b 60%, #f59e0b 85%, #ef4444 85%); border-radius: 8px; opacity: 0.2; }
 
-        /* Estilização do Relatório - Layout Largo */
-        .markdown-content h2 { color: #e11d48; font-weight: 800; font-size: 1.3rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; text-transform: uppercase; }
-        .markdown-content p { margin-bottom: 1rem; line-height: 1.7; color: #334155; }
-        .markdown-content strong { font-weight: 800; color: #1d4ed8; }
-        .markdown-content ul { margin-bottom: 1.5rem; padding-left: 1.5rem; list-style-type: disc; }
-        .markdown-content li { margin-bottom: 0.6rem; color: #475569; }
+        .markdown-content p { margin-bottom: 0.5rem; }
+        .markdown-content ul, .markdown-content ol { margin-bottom: 0.5rem; padding-left: 1rem; list-style-type: disc; }
+        .markdown-content li { margin-bottom: 0.25rem; }
+        .markdown-content strong { font-weight: 800; color: inherit; }
+        
+        .report-card h2 { color: #e11d48; font-weight: 800; text-transform: uppercase; font-size: 1.1rem; margin-top: 1.5rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; }
+        .report-card li { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 12px; margin-bottom: 8px; list-style: none; }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen pb-20">
@@ -58,11 +59,12 @@
 
     <main class="max-w-6xl mx-auto p-4 mt-6">
 
-        <div id="taxa" class="tab-content active">
+        <div id="taxa" class="tab-content active space-y-6">
             <div class="glass max-w-md mx-auto rounded-[2.5rem] shadow-2xl border border-white p-8">
                 <div class="text-center mb-8">
                     <div class="bg-blue-600 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-200"><i data-lucide="calculator" class="text-white w-7 h-7"></i></div>
                     <h1 class="text-2xl font-black text-slate-800 tracking-tighter uppercase">Taxa de Impostos</h1>
+                    <p class="text-slate-400 text-[10px] font-bold uppercase mt-1">Cálculo de Verba Bruta + Taxa</p>
                 </div>
                 <div class="space-y-6">
                     <div class="grid grid-cols-3 gap-3">
@@ -70,75 +72,165 @@
                             <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Líquido Desejado</label>
                             <div class="relative">
                                 <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">R$</span>
-                                <input type="number" id="taxInput" oninput="calcTax()" placeholder="Ex: 2500" class="w-full pl-10 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xl font-black outline-none focus:border-blue-500">
+                                <input type="number" id="taxInput" oninput="calcTax()" placeholder="0,00" class="w-full pl-10 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xl font-black text-slate-700 outline-none focus:border-blue-500">
                             </div>
                         </div>
                         <div>
                             <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Taxa %</label>
-                            <input type="number" id="taxRate" oninput="calcTax()" value="12.5" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xl font-black text-blue-600 text-center outline-none">
+                            <input type="number" id="taxRate" oninput="calcTax()" value="12.5" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xl font-black text-blue-600 outline-none text-center">
                         </div>
                     </div>
-                    <div class="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl">
-                        <div class="flex justify-between items-center mb-6"><span class="text-slate-400 text-[10px] font-black uppercase">Valor da Taxa</span><span class="font-black text-rose-400 text-lg" id="taxJuros">+ R$ 0,00</span></div>
+                    <div class="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden">
+                        <div class="flex justify-between items-center mb-6"><span class="text-slate-400 text-[10px] font-black uppercase">Valor Adicional</span><span class="font-black text-rose-400 text-lg" id="taxJuros">+ R$ 0,00</span></div>
                         <div class="border-t border-slate-800 my-6"></div>
                         <div class="flex justify-between items-end">
-                            <div><span class="text-slate-500 text-[10px] block font-black uppercase mb-1">Total Depósito</span><span class="text-3xl font-black text-blue-400 tracking-tighter" id="taxTotal">R$ 0,00</span></div>
-                            <button onclick="copyTax()" class="bg-blue-600 p-4 rounded-2xl active:scale-90 transition-all shadow-lg"><i data-lucide="copy" class="w-6 h-6 text-white"></i></button>
+                            <div><span class="text-slate-500 text-[10px] block font-black uppercase mb-1">Total Fatura</span><span class="text-4xl font-black text-blue-400 tracking-tighter" id="taxTotal">R$ 0,00</span></div>
+                            <button onclick="copyTax()" class="bg-blue-600 p-4 rounded-2xl shadow-xl active:scale-90 transition-all"><i data-lucide="copy" class="w-6 h-6 text-white"></i></button>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div id="mmf" class="tab-content space-y-6">
+            <div class="glass max-w-md mx-auto rounded-[2.5rem] shadow-2xl border border-white p-8">
+                <div class="text-center mb-8">
+                    <div class="bg-indigo-600 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"><i data-lucide="dollar-sign" class="text-white w-7 h-7"></i></div>
+                    <h1 class="text-2xl font-black text-slate-800 tracking-tighter uppercase">Cálculo MMF</h1>
+                    <p class="text-slate-400 text-[10px] font-bold uppercase mt-1">Lucro Real da Operação</p>
+                </div>
+                <div class="space-y-4">
+                    <div class="bg-slate-50 rounded-3xl p-4 border border-slate-100"><p class="text-[10px] text-slate-500 font-bold text-center uppercase tracking-tighter">Descubra o lucro real após pagar produto, ads e fee.</p></div>
+                    <input type="number" id="mmfVendas" oninput="calcMMF()" placeholder="Vendas Totais (R$)" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-700 outline-none">
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="number" id="mmfMargem" oninput="calcMMF()" placeholder="Margem Prod (%)" class="p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-700 outline-none">
+                        <input type="number" id="mmfAds" oninput="calcMMF()" placeholder="Investimento Ads" class="p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-700 outline-none">
+                    </div>
+                    <input type="number" id="mmfFee" oninput="calcMMF()" placeholder="Seu FEE / Agência (R$)" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-700 outline-none">
+                    <div id="mmfResultBox" class="hidden rounded-[2.5rem] p-10 text-white text-center shadow-lg mt-6">
+                        <span id="mmfLabel" class="text-[10px] font-black uppercase tracking-widest"></span>
+                        <div id="mmfValue" class="text-5xl font-black my-2 tracking-tighter leading-none">R$ 0,00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="stress" class="tab-content space-y-6">
+            <div class="glass max-w-md mx-auto rounded-[2.5rem] shadow-2xl border border-white p-8">
+                <div class="text-center mb-6">
+                    <div class="bg-rose-500 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"><i data-lucide="activity" class="text-white w-7 h-7"></i></div>
+                    <h2 class="text-2xl font-black text-slate-800 tracking-tighter uppercase">Escala de Stress</h2>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mt-1">Analisador de Variância de Leilão</p>
+                </div>
+                <div class="space-y-4">
+                    <input type="number" id="stressAvg" oninput="calcStress()" placeholder="CPA Médio (7 dias)" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-700 outline-none">
+                    <input type="number" id="stressNow" oninput="calcStress()" placeholder="CPA de Hoje" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-700 outline-none">
+                    <div id="stressBox" class="hidden rounded-[2.5rem] p-8 text-white text-center shadow-lg transition-all mt-4">
+                        <span id="stressStatus" class="text-[10px] font-black uppercase mb-2 block tracking-widest"></span>
+                        <div id="stressPerc" class="text-5xl font-black leading-none tracking-tighter">+0%</div>
+                        <p id="stressMsg" class="text-[11px] font-medium mt-4 px-2"></p>
+                    </div>
+                    <div class="bg-slate-50 rounded-3xl p-6 space-y-4 border border-slate-100">
+                        <h3 class="text-xs font-black uppercase text-slate-500 flex items-center gap-2"><i data-lucide="info" class="w-4 h-4"></i> Ciência do Leilão</h3>
+                        <p class="text-[10px] text-slate-600 leading-relaxed text-justify">O leilão segue uma <strong>Curva de Bell</strong>. Oscilações de até 20% são normais.</p>
+                        <div class="bell-curve relative flex items-center justify-center">
+                            <div class="absolute inset-0 flex justify-around items-end pb-1 opacity-40">
+                                <div class="h-4 w-1 bg-slate-400 rounded-full"></div>
+                                <div class="h-8 w-1 bg-slate-400 rounded-full"></div>
+                                <div class="h-12 w-1 bg-slate-400 rounded-full"></div>
+                                <div class="h-8 w-1 bg-slate-400 rounded-full"></div>
+                                <div class="h-4 w-1 bg-slate-400 rounded-full"></div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-[9px] font-bold uppercase text-center">
+                            <div class="text-emerald-600">60% Normal</div>
+                            <div class="text-amber-600">25% Alerta</div>
+                            <div class="text-rose-600">15% Anomalia</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="pacing" class="tab-content space-y-6">
+            <div class="glass max-w-md mx-auto rounded-[2.5rem] shadow-2xl border border-white p-8 text-center">
+                <div class="bg-sky-500 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"><i data-lucide="timer" class="text-white w-7 h-7"></i></div>
+                <h1 class="text-2xl font-black text-slate-800 tracking-tighter uppercase">Pacing de Verba</h1>
+                <div class="space-y-4 mt-6">
+                    <input type="number" id="pTotal" oninput="calcPacing()" placeholder="Verba Total Mensal" class="w-full p-4 bg-slate-50 border-2 rounded-2xl font-black outline-none">
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="number" id="pGasto" oninput="calcPacing()" placeholder="Já Gastou" class="p-4 bg-slate-50 border-2 rounded-2xl font-black outline-none">
+                        <input type="number" id="pDia" oninput="calcPacing()" placeholder="Dia Atual" class="p-4 bg-slate-50 border-2 rounded-2xl font-black outline-none">
+                    </div>
+                    <div id="pacingBox" class="hidden bg-slate-900 rounded-[2.5rem] p-8 text-white mt-4 text-center">
+                        <span class="text-[10px] font-black uppercase text-sky-400 tracking-widest">Investimento Diário Ideal</span>
+                        <div id="pIdeal" class="text-4xl font-black mt-1">R$ 0,00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="video" class="tab-content space-y-6">
+            <div class="glass max-w-md mx-auto rounded-[2.5rem] shadow-2xl border border-white p-8">
+                <div class="text-center mb-8">
+                    <div class="bg-rose-600 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"><i data-lucide="play-circle" class="text-white w-7 h-7"></i></div>
+                    <h1 class="text-2xl font-black text-slate-800 tracking-tighter uppercase">Métricas de Vídeo</h1>
+                </div>
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <input type="number" id="vImp" oninput="calcVid()" placeholder="Impressões" class="p-4 bg-slate-50 border-2 rounded-2xl font-black outline-none">
+                    <input type="number" id="v3s" oninput="calcVid()" placeholder="Plays 3s" class="p-4 bg-slate-50 border-2 rounded-2xl font-black outline-none">
+                </div>
+                <div class="bg-slate-900 rounded-[2.5rem] p-8 grid grid-cols-2 gap-4 text-center">
+                    <div class="border-r border-slate-800"><span class="text-[10px] font-black uppercase text-rose-500 tracking-widest">Hook Rate</span><div id="rHook" class="text-4xl font-black text-white">0%</div></div>
+                    <div><span class="text-[10px] font-black uppercase text-rose-500 tracking-widest">Hold Rate</span><div id="rHold" class="text-4xl font-black text-white">0%</div></div>
+                </div>
+                <p class="text-center text-[9px] font-bold text-slate-400 uppercase mt-4">Meta: Hook > 25% | Hold > 15%</p>
             </div>
         </div>
 
         <div id="analisador" class="tab-content space-y-6">
             <div class="glass w-full rounded-[2.5rem] shadow-2xl border border-white p-8 md:p-12">
                 <div class="text-center mb-8">
-                    <div class="bg-rose-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"><i data-lucide="search" class="text-white w-8 h-8"></i></div>
-                    <h1 class="text-3xl font-black text-slate-800 tracking-tighter uppercase leading-none">Analisador de Landing Pages</h1>
+                    <div class="bg-rose-600 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"><i data-lucide="search" class="text-white w-7 h-7"></i></div>
+                    <h1 class="text-2xl font-black text-slate-800 tracking-tighter uppercase leading-none">Analisador de Landing Pages</h1>
+                    <p class="text-rose-600 text-[10px] font-black uppercase mt-2 tracking-widest">MARKETING É VENDA</p>
                 </div>
-                <div class="max-w-2xl mx-auto space-y-6">
+                <div class="space-y-4 max-w-2xl mx-auto">
                     <div class="relative flex items-center">
-                        <input type="text" id="lp-url" placeholder="Insira a URL (ex: https://lizotebuild.com.br/lp/)" class="w-full p-5 pr-16 bg-slate-50 border-2 border-slate-100 rounded-3xl font-bold text-sm outline-none focus:border-rose-500 shadow-inner">
-                        <button onclick="gerarAnaliseLP()" class="absolute right-2 bg-rose-600 p-4 rounded-2xl text-white shadow-lg active:scale-90 transition-all"><i data-lucide="zap" class="w-5 h-5"></i></button>
+                        <input type="text" id="lp-url" placeholder="https://suapagina.com.br" class="w-full p-4 pr-14 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-xs text-slate-700 outline-none focus:border-rose-500">
+                        <button onclick="gerarAnaliseLP()" class="absolute right-2 bg-rose-600 p-3 rounded-xl text-white active:scale-90 transition-all shadow-lg"><i data-lucide="zap" class="w-4 h-4"></i></button>
                     </div>
-                    <div id="lp-loader" class="hidden py-12 text-center space-y-4">
-                        <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-rose-600 border-t-transparent"></div>
-                        <p class="text-[12px] font-black text-slate-600 uppercase">Analisando site em tempo real...<br><span class="text-[10px] text-slate-400 font-normal">Isso pode levar até 20 segundos.</span></p>
+                    <div id="lp-loader" class="hidden py-10 text-center space-y-4">
+                        <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-rose-600 border-t-transparent"></div>
+                        <p class="text-[11px] font-black text-slate-600 uppercase">Analisando landing page...</p>
                     </div>
                 </div>
-                
-                <div id="lp-result-container" class="hidden mt-10 w-full max-w-5xl mx-auto">
-                    <div id="lp-report-pdf" class="bg-white rounded-[3rem] p-10 md:p-16 border border-slate-100 shadow-xl markdown-content text-slate-800 overflow-x-auto"></div>
-                    <div class="flex justify-center mt-8">
-                        <button onclick="baixarPDFAnalise()" class="bg-slate-900 text-white px-10 py-5 rounded-3xl font-black text-[12px] uppercase tracking-widest hover:bg-black transition-all flex items-center gap-3 shadow-2xl">
-                            <i data-lucide="download" class="w-5 h-5"></i> Baixar Relatório (PDF)
-                        </button>
-                    </div>
+                <div id="lp-result-container" class="hidden space-y-4 max-w-5xl mx-auto mt-8">
+                    <div id="lp-report-pdf" class="bg-white rounded-[2.5rem] p-10 md:p-16 border border-slate-200 shadow-sm report-card markdown-content text-slate-800 overflow-x-auto"></div>
+                    <button onclick="baixarPDFAnalise()" class="max-w-xs mx-auto w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-black transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="download" class="w-4 h-4"></i> Baixar Relatório (PDF)
+                    </button>
                 </div>
             </div>
         </div>
 
         <div id="chat" class="tab-content space-y-6">
-            <div class="glass w-full rounded-[2.5rem] shadow-2xl border border-white flex flex-col h-[700px] overflow-hidden">
-                <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 px-10">
-                    <div class="flex items-center gap-4"><div class="bg-blue-600 w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg"><i data-lucide="bot" class="w-6 h-6"></i></div><div><h2 class="font-black text-slate-800 uppercase text-lg tracking-tighter">Gestor IA PRO</h2></div></div>
-                    <button onclick="clearChat()" class="text-[10px] font-black text-slate-400 hover:text-rose-500 uppercase transition-all px-4 py-2 bg-white rounded-xl border border-slate-100">Limpar Chat</button>
+            <div class="glass w-full rounded-[2.5rem] shadow-2xl border border-white flex flex-col h-[600px] md:h-[700px] overflow-hidden">
+                <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <div class="flex items-center gap-3"><div class="bg-blue-600 w-10 h-10 rounded-xl flex items-center justify-center shadow-lg"><i data-lucide="bot" class="text-white w-5 h-5"></i></div><h2 class="text-md font-black text-slate-800 uppercase tracking-tighter">Gestor IA PRO</h2></div>
+                    <button onclick="clearChat()" class="text-[9px] font-black text-slate-400 hover:text-rose-500 uppercase tracking-widest transition-all">Limpar</button>
                 </div>
-                <div id="chat-messages" class="flex-1 overflow-y-auto p-10 space-y-6 bg-white/30 scroll-smooth"></div>
-                <div class="p-6 bg-white border-t border-slate-50">
+                <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4 bg-white/30 scroll-smooth">
+                    <div class="flex flex-col gap-1 max-w-[80%]"><div class="bg-blue-600 text-white p-4 rounded-3xl rounded-tl-none text-xs font-medium shadow-md">Fala, Gestor! Sou sua inteligência estratégica. Mande o nicho, métricas ou o copy da sua página para análise.</div></div>
+                </div>
+                <div class="p-4 bg-white border-t border-slate-100">
                     <div class="relative flex items-center max-w-4xl mx-auto w-full">
-                        <input type="text" id="chat-input" placeholder="Mande métricas ou copy para análise..." class="w-full p-5 pr-20 bg-slate-50 border-2 border-slate-100 rounded-3xl font-bold text-sm outline-none focus:border-blue-500 shadow-inner">
-                        <button onclick="sendMessage()" class="absolute right-3 bg-blue-600 p-4 rounded-2xl text-white shadow-xl active:scale-95 transition-all"><i data-lucide="send" class="w-5 h-5"></i></button>
+                        <input type="text" id="chat-input" placeholder="Dúvidas estratégicas ou análise de copy..." class="w-full p-4 pr-14 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-xs text-slate-700 outline-none">
+                        <button onclick="sendMessage()" class="absolute right-2 bg-blue-600 p-3 rounded-xl text-white active:scale-90 transition-all shadow-lg"><i data-lucide="send" class="w-4 h-4"></i></button>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div id="mmf" class="tab-content space-y-6"><div class="glass max-w-md mx-auto rounded-[2.5rem] p-8 shadow-2xl border border-white"><h1 class="text-center text-2xl font-black uppercase mb-6">Cálculo MMF</h1><input type="number" id="mmfVendas" oninput="calcMMF()" placeholder="Vendas" class="w-full p-4 bg-slate-50 border-2 rounded-2xl mb-4"><div class="grid grid-cols-2 gap-3 mb-4"><input type="number" id="mmfMargem" oninput="calcMMF()" placeholder="Margem (%)"><input type="number" id="mmfAds" oninput="calcMMF()" placeholder="Ads"></div><input type="number" id="mmfFee" oninput="calcMMF()" placeholder="Fee" class="w-full p-4 bg-slate-50 border-2 rounded-2xl mb-6"><div id="mmfResultBox" class="hidden rounded-[2.5rem] p-10 text-white text-center shadow-lg"><div id="mmfValue" class="text-5xl font-black">R$ 0,00</div></div></div></div>
-        <div id="stress" class="tab-content space-y-6"><div class="glass max-w-md mx-auto rounded-[2.5rem] p-8 shadow-2xl border border-white text-center"><h2 class="text-2xl font-black mb-6 uppercase">Stress do Leilão</h2><input type="number" id="stressAvg" oninput="calcStress()" placeholder="Média CPA"><input type="number" id="stressNow" oninput="calcStress()" placeholder="CPA Hoje" class="mt-4"><div id="stressBox" class="hidden rounded-[2.5rem] p-8 text-white mt-4"><div id="stressPerc" class="text-5xl font-black">+0%</div></div></div></div>
-        <div id="pacing" class="tab-content space-y-6"><div class="glass max-w-md mx-auto rounded-[2.5rem] p-8 shadow-2xl border border-white text-center"><h2 class="text-2xl font-black mb-6 uppercase">Pacing de Verba</h2><input type="number" id="pTotal" oninput="calcPacing()" placeholder="Verba Total" class="mb-4"><div class="grid grid-cols-2 gap-3 mb-4"><input type="number" id="pGasto" oninput="calcPacing()" placeholder="Gasto"><input type="number" id="pDia" oninput="calcPacing()" placeholder="Dia"></div><div id="pacingBox" class="hidden bg-slate-900 rounded-[2.5rem] p-8 text-white"><div id="pIdeal" class="text-4xl font-black">R$ 0,00</div></div></div></div>
-        <div id="video" class="tab-content space-y-6"><div class="glass max-w-md mx-auto rounded-[2.5rem] p-8 shadow-2xl border border-white text-center"><h2 class="text-2xl font-black mb-6 uppercase">Vídeo</h2><div class="grid grid-cols-2 gap-3 mb-4"><input type="number" id="vImp" oninput="calcVid()" placeholder="Imp"><input type="number" id="v3s" oninput="calcVid()" placeholder="3s"></div><div class="bg-slate-900 rounded-[2.5rem] p-8 grid grid-cols-2 gap-4 text-white"><div id="rHook" class="text-4xl font-black">0%</div><div id="rHold" class="text-4xl font-black">0%</div></div></div></div>
-
     </main>
 
     <script>
@@ -146,9 +238,13 @@
         marked.setOptions({ breaks: true, gfm: true });
         const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
+        // LÓGICA DE ABAS
         function openTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active-tab'));
+            const contents = document.querySelectorAll('.tab-content');
+            const buttons = document.querySelectorAll('nav button');
+            contents.forEach(tab => tab.classList.remove('active'));
+            buttons.forEach(btn => btn.classList.remove('active-tab'));
+            
             const activeTab = document.getElementById(tabId);
             const activeBtn = document.getElementById('btn-' + tabId);
             if(activeTab) activeTab.classList.add('active');
@@ -156,21 +252,26 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // LEITOR DE STREAMING ATUALIZADO (FIM DA TELA BRANCA)
         async function readStream(response, callback) {
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
             let accumulatedText = "";
             let buffer = ""; 
+
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
+                
                 buffer += decoder.decode(value, { stream: true });
                 const lines = buffer.split("\n");
                 buffer = lines.pop(); 
+
                 for (const line of lines) {
                     if (line.trim().startsWith("data: ")) {
                         try {
-                            const json = JSON.parse(line.replace("data: ", "").trim());
+                            const jsonStr = line.replace("data: ", "").trim();
+                            const json = JSON.parse(jsonStr);
                             const parts = json.candidates?.[0]?.content?.parts;
                             if (parts) {
                                 for (const part of parts) {
@@ -187,6 +288,7 @@
             return accumulatedText;
         }
 
+        // TAXA REVERSA (DEPÓSITO EXATO)
         function calcTax() { 
             const valorDesejado = parseFloat(document.getElementById('taxInput').value) || 0; 
             const taxa = (parseFloat(document.getElementById('taxRate').value) || 0) / 100; 
@@ -201,6 +303,7 @@
         }
         function copyTax() { const val = document.getElementById('taxTotal').innerText; if (val !== "R$ 0,00") { navigator.clipboard.writeText(val); alert("Copiado!"); } }
 
+        // ANALISADOR LP (AGUARDA TUDO ANTES DE MOSTRAR)
         async function gerarAnaliseLP() {
             const urlInput = document.getElementById('lp-url').value.trim();
             const loader = document.getElementById('lp-loader');
@@ -212,13 +315,7 @@
             resultBox.classList.add('hidden');
             reportDiv.innerHTML = ""; 
 
-            // Prompt otimizado para evitar respostas genéricas
-            const promptLP = `SISTEMA: USE O GOOGLE SEARCH PARA LER O SITE AGORA: ${urlInput}. 
-            REGRAS OBRIGATÓRIAS:
-            1. Prove que leu o site citando nomes, slogans e ofertas reais encontrados.
-            2. Analise a Headline atual e proponha uma melhor.
-            3. Dê 8 ideias práticas de CRO baseadas nos elementos visíveis na página.
-            Responda em Markdown Profissional.`;
+            const promptLP = `USE O GOOGLE SEARCH PARA ANALISAR O SITE AGORA: ${urlInput}. Cite trechos reais da página para provar que leu. Retorne uma Auditoria Profissional de CRO em Markdown.`;
 
             try {
                 const response = await fetch('/api/chat', {
@@ -229,13 +326,12 @@
 
                 const fullText = await readStream(response);
                 
-                // Reduzi o limite de caracteres para aceitar análises menores, desde que tenham conteúdo
-                if (fullText && fullText.trim().length > 20) {
+                if (fullText && fullText.trim().length > 50) {
                     reportDiv.innerHTML = marked.parse(fullText);
                     loader.classList.add('hidden');
                     resultBox.classList.remove('hidden');
                 } else {
-                    alert("A IA pesquisou mas a página bloqueou a leitura automática. Tente novamente.");
+                    alert("A IA pesquisou mas falhou em ler o site. Tente novamente.");
                     loader.classList.add('hidden');
                 }
             } catch (e) { alert("Erro de conexão."); loader.classList.add('hidden'); }
@@ -243,6 +339,8 @@
 
         // CHAT GESTOR IA
         let historicoChat = [];
+        const SYSTEM_PROMPT = "Você é o Diretor de Performance do GestorHub PRO. Especialista em Tráfego Pago e CRO. 1. Nunca dê diagnóstico sem saber o NICHO e TICKET. 2. Analise Landing Pages focando em COPY, OFERTA e FUNIL. 3. Respostas técnicas e diretas.";
+
         async function sendMessage() {
             const input = document.getElementById('chat-input');
             const message = input.value.trim();
@@ -252,16 +350,37 @@
             historicoChat.push({ role: "user", parts: [{ text: message }] });
             const typingId = appendMessage('bot', '...');
             try {
-                const response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ system_instruction: { parts: [{ text: "Você é o Diretor de Performance. Direto e Técnico." }] }, contents: historicoChat }) });
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ system_instruction: { parts: [{ text: SYSTEM_PROMPT }] }, contents: historicoChat })
+                });
                 const finalResponse = await readStream(response, (text) => { updateBotMessage(typingId, text); });
                 historicoChat.push({ role: "model", parts: [{ text: finalResponse }] });
-            } catch (e) { updateBotMessage(typingId, "Erro."); }
+            } catch (e) { updateBotMessage(typingId, "Erro de conexão."); }
         }
-        function appendMessage(type, text) { const container = document.getElementById('chat-messages'); const id = 'msg-' + Math.random().toString(36).substr(2, 9); const align = type === 'user' ? 'items-end ml-auto' : 'items-start'; const color = type === 'user' ? 'bg-slate-800 text-white rounded-tr-none' : 'bg-blue-600 text-white rounded-tl-none'; container.insertAdjacentHTML('beforeend', `<div id="${id}" class="flex flex-col gap-1 max-w-[85%] ${align}"><div class="${color} p-5 rounded-3xl text-sm shadow-md ${type === 'bot' ? 'markdown-content' : ''}">${text}</div></div>`); container.scrollTop = container.scrollHeight; return id; }
-        function updateBotMessage(id, text) { const msgDiv = document.querySelector(`[id="${id}"] div`); if (msgDiv) msgDiv.innerHTML = marked.parse(text); document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight; }
+
+        function appendMessage(type, text) {
+            const container = document.getElementById('chat-messages');
+            const id = 'msg-' + Math.random().toString(36).substr(2, 9);
+            const align = type === 'user' ? 'items-end ml-auto' : 'items-start';
+            const color = type === 'user' ? 'bg-slate-800 text-white rounded-tr-none' : 'bg-blue-600 text-white rounded-tl-none';
+            container.insertAdjacentHTML('beforeend', `<div id="${id}" class="flex flex-col gap-1 max-w-[85%] ${align}"><div class="${color} p-4 rounded-3xl text-xs shadow-md ${type === 'bot' ? 'markdown-content' : ''}">${text}</div></div>`);
+            container.scrollTop = container.scrollHeight;
+            return id;
+        }
+
+        function updateBotMessage(id, text) {
+            const msgDiv = document.querySelector(`[id="${id}"] div`);
+            if (msgDiv) msgDiv.innerHTML = marked.parse(text);
+            document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+        }
+
         function clearChat() { historicoChat = []; document.getElementById('chat-messages').innerHTML = ""; }
-        function calcMMF() { const v = parseFloat(document.getElementById('mmfVendas').value) || 0; const m = (parseFloat(document.getElementById('mmfMargem').value) || 0) / 100; const a = parseFloat(document.getElementById('mmfAds').value) || 0; const f = parseFloat(document.getElementById('mmfFee').value) || 0; if(v > 0) { const mmf = (v * m) - a - f; const box = document.getElementById('mmfResultBox'); box.classList.remove('hidden'); document.getElementById('mmfValue').innerText = fmt.format(mmf); box.className = mmf > 0 ? "rounded-[2.5rem] p-10 text-white text-center shadow-lg bg-emerald-600" : "rounded-[2.5rem] p-10 text-white text-center shadow-lg bg-rose-600"; document.getElementById('mmfLabel').innerText = mmf > 0 ? "LUCRO" : "PREJUÍZO"; } }
-        function calcStress() { const avg = parseFloat(document.getElementById('stressAvg').value) || 0; const now = parseFloat(document.getElementById('stressNow').value) || 0; if(avg > 0 && now > 0) { const diff = ((now - avg) / avg) * 100; const box = document.getElementById('stressBox'); box.classList.remove('hidden'); document.getElementById('stressPerc').innerText = (diff > 0 ? "+" : "") + diff.toFixed(1) + "%"; box.className = diff <= 20 ? "rounded-[2.5rem] p-8 text-white mt-4 bg-emerald-600" : diff <= 50 ? "rounded-[2.5rem] p-8 text-white mt-4 bg-amber-500" : "rounded-[2.5rem] p-8 text-white mt-4 bg-rose-600"; } }
+
+        // CÁLCULOS RESTANTES (MANTIDOS ORIGINAIS)
+        function calcMMF() { const v = parseFloat(document.getElementById('mmfVendas').value) || 0; const m = (parseFloat(document.getElementById('mmfMargem').value) || 0) / 100; const a = parseFloat(document.getElementById('mmfAds').value) || 0; const f = parseFloat(document.getElementById('mmfFee').value) || 0; if(v > 0) { const mmf = (v * m) - a - f; const box = document.getElementById('mmfResultBox'); box.classList.remove('hidden'); document.getElementById('mmfValue').innerText = fmt.format(mmf); box.className = mmf > 0 ? "rounded-[2.5rem] p-10 text-white text-center shadow-lg mt-6 bg-emerald-600" : "rounded-[2.5rem] p-10 text-white text-center shadow-lg mt-6 bg-rose-600"; document.getElementById('mmfLabel').innerText = mmf > 0 ? "🚨 LUCRO REAL" : "⚠️ PREJUÍZO"; } }
+        function calcStress() { const avg = parseFloat(document.getElementById('stressAvg').value) || 0; const now = parseFloat(document.getElementById('stressNow').value) || 0; if(avg > 0 && now > 0) { const diff = ((now - avg) / avg) * 100; const box = document.getElementById('stressBox'); box.classList.remove('hidden'); document.getElementById('stressPerc').innerText = (diff > 0 ? "+" : "") + diff.toFixed(1) + "%"; if(diff <= 20) { box.className = "rounded-[2.5rem] p-8 text-white mt-4 bg-emerald-600"; document.getElementById('stressStatus').innerText = "🟢 NORMAL"; } else if(diff <= 50) { box.className = "rounded-[2.5rem] p-8 text-white mt-4 bg-amber-500"; document.getElementById('stressStatus').innerText = "🟡 ALERTA"; } else { box.className = "rounded-[2.5rem] p-8 text-white mt-4 bg-rose-600"; document.getElementById('stressStatus').innerText = "🔴 ANOMALIA"; } } }
         function calcPacing() { const t = parseFloat(document.getElementById('pTotal').value) || 0; const g = parseFloat(document.getElementById('pGasto').value) || 0; const d = parseInt(document.getElementById('pDia').value) || 1; if(t > 0) { document.getElementById('pacingBox').classList.remove('hidden'); const ideal = (t - g) / (31 - d); document.getElementById('pIdeal').innerText = fmt.format(ideal > 0 ? ideal : 0); } }
         function calcVid() { const i = parseFloat(document.getElementById('vImp').value) || 0; const p = parseFloat(document.getElementById('v3s').value) || 0; if(i > 0) { const hook = (p / i) * 100; document.getElementById('rHook').innerText = hook.toFixed(1) + "%"; document.getElementById('rHold').innerText = (hook * 0.4).toFixed(1) + "%"; } }
         function baixarPDFAnalise() { const element = document.getElementById('lp-report-pdf'); const opt = { margin: 10, filename: 'Relatorio-CRO.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }; html2pdf().set(opt).from(element).save(); }
