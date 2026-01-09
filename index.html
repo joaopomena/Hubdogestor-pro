@@ -223,10 +223,14 @@
     </footer>
 
     <script>
+        // Inicialização global
         lucide.createIcons();
         marked.setOptions({ breaks: true, gfm: true });
+        const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+        let historicoChat = [];
+        const SYSTEM_PROMPT = "Você é o Diretor de Performance do GestorHub PRO. Especialista em Tráfego Pago e CRO. 1. Nunca dê diagnóstico sem saber o NICHO e TICKET. 2. Analise Landing Pages focando em COPY, OFERTA e FUNIL. 3. Respostas técnicas e diretas.";
 
-        // LÓGICA DE ABAS
+        // --- LÓGICA DE ABAS ---
         function openTab(tabId) {
             const contents = document.querySelectorAll('.tab-content');
             const buttons = document.querySelectorAll('nav button');
@@ -240,7 +244,7 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // SISTEMA DE STREAMING REVISADO (SOLUÇÃO TELA BRANCA)
+        // --- SISTEMA DE STREAMING ---
         async function readStream(response, callback) {
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
@@ -256,13 +260,10 @@
                 buffer = lines.pop(); 
 
                 for (const line of lines) {
-                    const cleanLine = line.trim();
-                    if (cleanLine.startsWith("data: ")) {
+                    if (line.trim().startsWith("data: ")) {
                         try {
-                            // Uso de substring para garantir extração correta do JSON
-                            const jsonStr = cleanLine.substring(6).trim();
+                            const jsonStr = line.replace("data: ", "").trim();
                             const json = JSON.parse(jsonStr);
-                            
                             const parts = json.candidates?.[0]?.content?.parts;
                             if (parts) {
                                 for (const part of parts) {
@@ -279,9 +280,92 @@
             return accumulatedText;
         }
 
-        // IA CHAT LOGIC
-        let historicoChat = [];
-        const SYSTEM_PROMPT = "Você é o Diretor de Performance do GestorHub PRO. Especialista em Tráfego Pago e CRO. 1. Nunca dê diagnóstico sem saber o NICHO e TICKET. 2. Analise Landing Pages focando em COPY, OFERTA e FUNIL. 3. Respostas técnicas e diretas.";
+        // --- CALCULADORES ---
+        
+        // CORREÇÃO: Taxa Reversa (Quanto depositar para sobrar X)
+        function calcTax() { 
+            const valorDesejado = parseFloat(document.getElementById('taxInput').value) || 0; 
+            const taxa = (parseFloat(document.getElementById('taxRate').value) || 0) / 100; 
+            
+            if (valorDesejado > 0) {
+                // Fórmula: Total = Valor Desejado / (1 - Taxa)
+                const total = valorDesejado / (1 - taxa);
+                const valorTaxa = total - valorDesejado;
+
+                document.getElementById('taxJuros').innerText = "+ " + fmt.format(valorTaxa); 
+                document.getElementById('taxTotal').innerText = fmt.format(total); 
+            } else {
+                document.getElementById('taxJuros').innerText = "+ R$ 0,00"; 
+                document.getElementById('taxTotal').innerText = "R$ 0,00";
+            }
+        }
+
+        function copyTax() { 
+            const val = document.getElementById('taxTotal').innerText; 
+            if (val !== "R$ 0,00") { 
+                navigator.clipboard.writeText(val); 
+                alert("Copiado!"); 
+            } 
+        }
+
+        function calcMMF() { 
+            const v = parseFloat(document.getElementById('mmfVendas').value) || 0; 
+            const m = (parseFloat(document.getElementById('mmfMargem').value) || 0) / 100; 
+            const a = parseFloat(document.getElementById('mmfAds').value) || 0; 
+            const f = parseFloat(document.getElementById('mmfFee').value) || 0; 
+            if(v > 0) { 
+                const mmf = (v * m) - a - f; 
+                const box = document.getElementById('mmfResultBox'); 
+                box.classList.remove('hidden'); 
+                document.getElementById('mmfValue').innerText = fmt.format(mmf); 
+                box.className = mmf > 0 ? "rounded-[2.5rem] p-10 text-white text-center shadow-lg mt-6 bg-emerald-600" : "rounded-[2.5rem] p-10 text-white text-center shadow-lg mt-6 bg-rose-600"; 
+                document.getElementById('mmfLabel').innerText = mmf > 0 ? "🚨 LUCRO REAL" : "⚠️ PREJUÍZO"; 
+            } 
+        }
+
+        function calcStress() { 
+            const avg = parseFloat(document.getElementById('stressAvg').value) || 0; 
+            const now = parseFloat(document.getElementById('stressNow').value) || 0; 
+            if(avg > 0 && now > 0) { 
+                const diff = ((now - avg) / avg) * 100; 
+                const box = document.getElementById('stressBox'); 
+                box.classList.remove('hidden'); 
+                document.getElementById('stressPerc').innerText = (diff > 0 ? "+" : "") + diff.toFixed(1) + "%"; 
+                if(diff <= 20) { 
+                    box.className = "rounded-[2.5rem] p-8 text-white mt-4 bg-emerald-600"; 
+                    document.getElementById('stressStatus').innerText = "🟢 NORMAL"; 
+                } else if(diff <= 50) { 
+                    box.className = "rounded-[2.5rem] p-8 text-white mt-4 bg-amber-500"; 
+                    document.getElementById('stressStatus').innerText = "🟡 ALERTA"; 
+                } else { 
+                    box.className = "rounded-[2.5rem] p-8 text-white mt-4 bg-rose-600"; 
+                    document.getElementById('stressStatus').innerText = "🔴 ANOMALIA"; 
+                } 
+            } 
+        }
+
+        function calcPacing() { 
+            const t = parseFloat(document.getElementById('pTotal').value) || 0; 
+            const g = parseFloat(document.getElementById('pGasto').value) || 0; 
+            const d = parseInt(document.getElementById('pDia').value) || 1; 
+            if(t > 0) { 
+                document.getElementById('pacingBox').classList.remove('hidden'); 
+                const ideal = (t - g) / (31 - d); 
+                document.getElementById('pIdeal').innerText = fmt.format(ideal > 0 ? ideal : 0); 
+            } 
+        }
+
+        function calcVid() { 
+            const i = parseFloat(document.getElementById('vImp').value) || 0; 
+            const p = parseFloat(document.getElementById('v3s').value) || 0; 
+            if(i > 0) { 
+                const hook = (p / i) * 100; 
+                document.getElementById('rHook').innerText = hook.toFixed(1) + "%"; 
+                document.getElementById('rHold').innerText = (hook * 0.4).toFixed(1) + "%"; 
+            } 
+        }
+
+        // --- IA E CHAT ---
 
         async function sendMessage() {
             const input = document.getElementById('chat-input');
@@ -311,7 +395,6 @@
             } catch (e) { updateBotMessage(typingId, "Erro de conexão."); }
         }
 
-        // ANALISADOR LP COM TRAVA DE LOADER
         async function gerarAnaliseLP() {
             const urlInput = document.getElementById('lp-url').value.trim();
             const loader = document.getElementById('lp-loader');
@@ -339,10 +422,8 @@
                 });
 
                 let hasStarted = false;
-
                 await readStream(response, (text) => {
                     if (text.length > 0 && !hasStarted) {
-                        // SÓ ESCONDE O LOADER QUANDO REALMENTE CHEGAR TEXTO
                         hasStarted = true;
                         loader.classList.add('hidden');
                         resultBox.classList.remove('hidden');
@@ -352,13 +433,6 @@
             } catch (e) { 
                 alert("Erro ao conectar."); 
                 loader.classList.add('hidden'); 
-            }
-        }
-
-        function clearChat() {
-            if (confirm("Resetar conversa?")) {
-                historicoChat = [];
-                document.getElementById('chat-messages').innerHTML = '<div class="bg-blue-600 text-white p-4 rounded-3xl text-xs font-medium shadow-md">Pronto para a nova análise.</div>';
             }
         }
 
@@ -378,38 +452,19 @@
             document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
         }
 
+        function clearChat() {
+            if (confirm("Resetar conversa?")) {
+                historicoChat = [];
+                document.getElementById('chat-messages').innerHTML = '<div class="bg-blue-600 text-white p-4 rounded-3xl text-xs font-medium shadow-md">Pronto para a nova análise.</div>';
+            }
+        }
+
         function baixarPDFAnalise() {
             const element = document.getElementById('lp-report-pdf');
             const opt = { margin: 10, filename: 'Relatorio-CRO.pdf', html2canvas: { scale: 3 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
             html2pdf().set(opt).from(element).save();
         }
 
-        // CALCULADORES
-        const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-        
-        // CORREÇÃO DEFINITIVA: Lógica de Taxa Reversa (Cálculo por dentro)
-        function calcTax() { 
-            const valorDesejado = parseFloat(document.getElementById('taxInput').value) || 0; 
-            const taxaPercentual = (parseFloat(document.getElementById('taxRate').value) || 0) / 100; 
-            
-            if (valorDesejado > 0) {
-                // Total = Valor Líquido / (1 - Taxa)
-                const total = valorDesejado / (1 - taxaPercentual);
-                const valorAdicional = total - valorDesejado;
-
-                document.getElementById('taxJuros').innerText = "+ " + fmt.format(valorAdicional); 
-                document.getElementById('taxTotal').innerText = fmt.format(total); 
-            } else {
-                document.getElementById('taxJuros').innerText = "+ R$ 0,00"; 
-                document.getElementById('taxTotal').innerText = "R$ 0,00";
-            }
-        }
-
-        function copyTax() { const val = document.getElementById('taxTotal').innerText; if (val !== "R$ 0,00") { navigator.clipboard.writeText(val); alert("Copiado!"); } }
-        function calcMMF() { const v = parseFloat(document.getElementById('mmfVendas').value) || 0; const m = (parseFloat(document.getElementById('mmfMargem').value) || 0) / 100; const a = parseFloat(document.getElementById('mmfAds').value) || 0; const f = parseFloat(document.getElementById('mmfFee').value) || 0; if(v > 0) { const mmf = (v * m) - a - f; const box = document.getElementById('mmfResultBox'); box.classList.remove('hidden'); document.getElementById('mmfValue').innerText = fmt.format(mmf); box.className = mmf > 0 ? "rounded-[2.5rem] p-10 text-white text-center shadow-lg mt-6 bg-emerald-600" : "rounded-[2.5rem] p-10 text-white text-center shadow-lg mt-6 bg-rose-600"; document.getElementById('mmfLabel').innerText = mmf > 0 ? "🚨 LUCRO REAL" : "⚠️ PREJUÍZO"; } }
-        function calcStress() { const avg = parseFloat(document.getElementById('stressAvg').value) || 0; const now = parseFloat(document.getElementById('stressNow').value) || 0; if(avg > 0 && now > 0) { const diff = ((now - avg) / avg) * 100; const box = document.getElementById('stressBox'); box.classList.remove('hidden'); document.getElementById('stressPerc').innerText = (diff > 0 ? "+" : "") + diff.toFixed(1) + "%"; if(diff <= 20) { box.className = "rounded-[2.5rem] p-8 text-white mt-4 bg-emerald-600"; document.getElementById('stressStatus').innerText = "🟢 NORMAL"; } else if(diff <= 50) { box.className = "rounded-[2.5rem] p-8 text-white mt-4 bg-amber-500"; document.getElementById('stressStatus').innerText = "🟡 ALERTA"; } else { box.className = "rounded-[2.5rem] p-8 text-white mt-4 bg-rose-600"; document.getElementById('stressStatus').innerText = "🔴 ANOMALIA"; } } }
-        function calcPacing() { const t = parseFloat(document.getElementById('pTotal').value) || 0; const g = parseFloat(document.getElementById('pGasto').value) || 0; const d = parseInt(document.getElementById('pDia').value) || 1; if(t > 0) { document.getElementById('pacingBox').classList.remove('hidden'); const ideal = (t - g) / (31 - d); document.getElementById('pIdeal').innerText = fmt.format(ideal > 0 ? ideal : 0); } }
-        function calcVid() { const i = parseFloat(document.getElementById('vImp').value) || 0; const p = parseFloat(document.getElementById('v3s').value) || 0; if(i > 0) { const hook = (p / i) * 100; document.getElementById('rHook').innerText = hook.toFixed(1) + "%"; document.getElementById('rHold').innerText = (hook * 0.4).toFixed(1) + "%"; } }
         document.getElementById('chat-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
     </script>
 </body>
