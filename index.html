@@ -130,12 +130,6 @@
                         <div id="stressPerc" class="text-5xl font-black leading-none tracking-tighter">+0%</div>
                         <p id="stressMsg" class="text-[11px] font-medium mt-4 px-2"></p>
                     </div>
-                    <div class="bg-slate-50 rounded-3xl p-6 space-y-4 border border-slate-100">
-                        <h3 class="text-xs font-black uppercase text-slate-500 flex items-center gap-2"><i data-lucide="info" class="w-4 h-4"></i> Ciência do Leilão</h3>
-                        <p class="text-[10px] text-slate-600 leading-relaxed text-justify">O leilão segue uma <strong>Curva de Bell</strong>. Oscilações de até 20% são normais.</p>
-                        <div class="bell-curve relative flex items-center justify-center"><div class="absolute inset-0 flex justify-around items-end pb-1 opacity-40"><div class="h-4 w-1 bg-slate-400 rounded-full"></div><div class="h-8 w-1 bg-slate-400 rounded-full"></div><div class="h-12 w-1 bg-slate-400 rounded-full"></div><div class="h-8 w-1 bg-slate-400 rounded-full"></div><div class="h-4 w-1 bg-slate-400 rounded-full"></div></div></div>
-                        <div class="grid grid-cols-3 gap-2 text-[9px] font-bold uppercase text-center"><div class="text-emerald-600">60% Normal</div><div class="text-amber-600">25% Alerta</div><div class="text-rose-600">15% Anomalia</div></div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -156,17 +150,17 @@
         </div>
 
         <div id="video" class="tab-content space-y-6">
-            <div class="glass rounded-[2.5rem] shadow-2xl border border-white p-8">
-                <div class="text-center mb-8"><div class="bg-rose-600 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"><i data-lucide="play-circle" class="text-white w-7 h-7"></i></div><h1 class="text-2xl font-black text-slate-800 tracking-tighter uppercase">Métricas de Vídeo</h1></div>
-                <div class="grid grid-cols-2 gap-3 mb-6">
+            <div class="glass rounded-[2.5rem] shadow-2xl border border-white p-8 text-center">
+                <div class="bg-rose-600 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"><i data-lucide="play-circle" class="text-white w-7 h-7"></i></div>
+                <h1 class="text-2xl font-black text-slate-800 tracking-tighter uppercase">Métricas de Vídeo</h1>
+                <div class="grid grid-cols-2 gap-3 mt-6">
                     <input type="number" id="vImp" oninput="calcVid()" placeholder="Impressões" class="p-4 bg-slate-50 border-2 rounded-2xl font-black outline-none">
                     <input type="number" id="v3s" oninput="calcVid()" placeholder="Plays 3s" class="p-4 bg-slate-50 border-2 rounded-2xl font-black outline-none">
                 </div>
-                <div class="bg-slate-900 rounded-[2.5rem] p-8 grid grid-cols-2 gap-4 text-center">
+                <div class="bg-slate-900 rounded-[2.5rem] p-8 grid grid-cols-2 gap-4 text-center mt-4">
                     <div class="border-r border-slate-800"><span class="text-[10px] font-black uppercase text-rose-500 tracking-widest">Hook Rate</span><div id="rHook" class="text-4xl font-black text-white">0%</div></div>
                     <div><span class="text-[10px] font-black uppercase text-rose-500 tracking-widest">Hold Rate</span><div id="rHold" class="text-4xl font-black text-white">0%</div></div>
                 </div>
-                <p class="text-center text-[9px] font-bold text-slate-400 uppercase mt-4">Meta: Hook > 25% | Hold > 15%</p>
             </div>
         </div>
 
@@ -184,7 +178,7 @@
                     </div>
                     <div id="lp-loader" class="hidden py-10 text-center space-y-4">
                         <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-rose-600 border-t-transparent"></div>
-                        <p class="text-[11px] font-black text-slate-600 uppercase">Analisando landing page...</p>
+                        <p class="text-[11px] font-black text-slate-600 uppercase">Analisando sua página...<br><span class="text-[9px] text-slate-400">Pode levar até 20 segundos.</span></p>
                     </div>
                     <div id="lp-result-container" class="hidden space-y-4">
                         <div id="lp-report-pdf" class="bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm report-card markdown-content text-slate-800"></div>
@@ -215,22 +209,11 @@
         </div>
     </main>
 
-    <footer class="text-center px-6 mt-12">
-        <a href="https://instagram.com/joaopomena" target="_blank" class="inline-flex items-center gap-4 bg-white border border-slate-200 px-8 py-5 rounded-full shadow-lg hover:shadow-xl transition-all group">
-            <span class="bg-gradient-to-tr from-yellow-400 via-rose-500 to-purple-600 w-10 h-10 rounded-xl flex items-center justify-center"><i data-lucide="instagram" class="text-white w-6 h-6"></i></span>
-            <span class="text-slate-800 font-black text-xl">@joaopomena</span>
-        </a>
-    </footer>
-
     <script>
-        // Inicialização global
         lucide.createIcons();
         marked.setOptions({ breaks: true, gfm: true });
         const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-        let historicoChat = [];
-        const SYSTEM_PROMPT = "Você é o Diretor de Performance do GestorHub PRO. Especialista em Tráfego Pago e CRO. 1. Nunca dê diagnóstico sem saber o NICHO e TICKET. 2. Analise Landing Pages focando em COPY, OFERTA e FUNIL. 3. Respostas técnicas e diretas.";
 
-        // --- LÓGICA DE ABAS ---
         function openTab(tabId) {
             const contents = document.querySelectorAll('.tab-content');
             const buttons = document.querySelectorAll('nav button');
@@ -244,7 +227,6 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // --- SISTEMA DE STREAMING ---
         async function readStream(response, callback) {
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
@@ -269,7 +251,7 @@
                                 for (const part of parts) {
                                     if (part.text) {
                                         accumulatedText += part.text;
-                                        callback(accumulatedText);
+                                        if(callback) callback(accumulatedText);
                                     }
                                 }
                             }
@@ -281,120 +263,26 @@
         }
 
         // --- CALCULADORES ---
-        
-        // CORREÇÃO: Taxa Reversa (Quanto depositar para sobrar X)
         function calcTax() { 
             const valorDesejado = parseFloat(document.getElementById('taxInput').value) || 0; 
             const taxa = (parseFloat(document.getElementById('taxRate').value) || 0) / 100; 
-            
             if (valorDesejado > 0) {
-                // Fórmula: Total = Valor Desejado / (1 - Taxa)
                 const total = valorDesejado / (1 - taxa);
-                const valorTaxa = total - valorDesejado;
-
-                document.getElementById('taxJuros').innerText = "+ " + fmt.format(valorTaxa); 
+                document.getElementById('taxJuros').innerText = "+ " + fmt.format(total - valorDesejado); 
                 document.getElementById('taxTotal').innerText = fmt.format(total); 
             } else {
                 document.getElementById('taxJuros').innerText = "+ R$ 0,00"; 
                 document.getElementById('taxTotal').innerText = "R$ 0,00";
             }
         }
+        function copyTax() { const val = document.getElementById('taxTotal').innerText; if (val !== "R$ 0,00") { navigator.clipboard.writeText(val); alert("Copiado!"); } }
+        
+        function calcMMF() { const v = parseFloat(document.getElementById('mmfVendas').value) || 0; const m = (parseFloat(document.getElementById('mmfMargem').value) || 0) / 100; const a = parseFloat(document.getElementById('mmfAds').value) || 0; const f = parseFloat(document.getElementById('mmfFee').value) || 0; if(v > 0) { const mmf = (v * m) - a - f; const box = document.getElementById('mmfResultBox'); box.classList.remove('hidden'); document.getElementById('mmfValue').innerText = fmt.format(mmf); box.className = mmf > 0 ? "rounded-[2.5rem] p-10 text-white text-center shadow-lg mt-6 bg-emerald-600" : "rounded-[2.5rem] p-10 text-white text-center shadow-lg mt-6 bg-rose-600"; document.getElementById('mmfLabel').innerText = mmf > 0 ? "🚨 LUCRO REAL" : "⚠️ PREJUÍZO"; } }
+        function calcStress() { const avg = parseFloat(document.getElementById('stressAvg').value) || 0; const now = parseFloat(document.getElementById('stressNow').value) || 0; if(avg > 0 && now > 0) { const diff = ((now - avg) / avg) * 100; const box = document.getElementById('stressBox'); box.classList.remove('hidden'); document.getElementById('stressPerc').innerText = (diff > 0 ? "+" : "") + diff.toFixed(1) + "%"; if(diff <= 20) { box.className = "rounded-[2.5rem] p-8 text-white mt-4 bg-emerald-600"; document.getElementById('stressStatus').innerText = "🟢 NORMAL"; } else if(diff <= 50) { box.className = "rounded-[2.5rem] p-8 text-white mt-4 bg-amber-500"; document.getElementById('stressStatus').innerText = "🟡 ALERTA"; } else { box.className = "rounded-[2.5rem] p-8 text-white mt-4 bg-rose-600"; document.getElementById('stressStatus').innerText = "🔴 ANOMALIA"; } } }
+        function calcPacing() { const t = parseFloat(document.getElementById('pTotal').value) || 0; const g = parseFloat(document.getElementById('pGasto').value) || 0; const d = parseInt(document.getElementById('pDia').value) || 1; if(t > 0) { document.getElementById('pacingBox').classList.remove('hidden'); const ideal = (t - g) / (31 - d); document.getElementById('pIdeal').innerText = fmt.format(ideal > 0 ? ideal : 0); } }
+        function calcVid() { const i = parseFloat(document.getElementById('vImp').value) || 0; const p = parseFloat(document.getElementById('v3s').value) || 0; if(i > 0) { const hook = (p / i) * 100; document.getElementById('rHook').innerText = hook.toFixed(1) + "%"; document.getElementById('rHold').innerText = (hook * 0.4).toFixed(1) + "%"; } }
 
-        function copyTax() { 
-            const val = document.getElementById('taxTotal').innerText; 
-            if (val !== "R$ 0,00") { 
-                navigator.clipboard.writeText(val); 
-                alert("Copiado!"); 
-            } 
-        }
-
-        function calcMMF() { 
-            const v = parseFloat(document.getElementById('mmfVendas').value) || 0; 
-            const m = (parseFloat(document.getElementById('mmfMargem').value) || 0) / 100; 
-            const a = parseFloat(document.getElementById('mmfAds').value) || 0; 
-            const f = parseFloat(document.getElementById('mmfFee').value) || 0; 
-            if(v > 0) { 
-                const mmf = (v * m) - a - f; 
-                const box = document.getElementById('mmfResultBox'); 
-                box.classList.remove('hidden'); 
-                document.getElementById('mmfValue').innerText = fmt.format(mmf); 
-                box.className = mmf > 0 ? "rounded-[2.5rem] p-10 text-white text-center shadow-lg mt-6 bg-emerald-600" : "rounded-[2.5rem] p-10 text-white text-center shadow-lg mt-6 bg-rose-600"; 
-                document.getElementById('mmfLabel').innerText = mmf > 0 ? "🚨 LUCRO REAL" : "⚠️ PREJUÍZO"; 
-            } 
-        }
-
-        function calcStress() { 
-            const avg = parseFloat(document.getElementById('stressAvg').value) || 0; 
-            const now = parseFloat(document.getElementById('stressNow').value) || 0; 
-            if(avg > 0 && now > 0) { 
-                const diff = ((now - avg) / avg) * 100; 
-                const box = document.getElementById('stressBox'); 
-                box.classList.remove('hidden'); 
-                document.getElementById('stressPerc').innerText = (diff > 0 ? "+" : "") + diff.toFixed(1) + "%"; 
-                if(diff <= 20) { 
-                    box.className = "rounded-[2.5rem] p-8 text-white mt-4 bg-emerald-600"; 
-                    document.getElementById('stressStatus').innerText = "🟢 NORMAL"; 
-                } else if(diff <= 50) { 
-                    box.className = "rounded-[2.5rem] p-8 text-white mt-4 bg-amber-500"; 
-                    document.getElementById('stressStatus').innerText = "🟡 ALERTA"; 
-                } else { 
-                    box.className = "rounded-[2.5rem] p-8 text-white mt-4 bg-rose-600"; 
-                    document.getElementById('stressStatus').innerText = "🔴 ANOMALIA"; 
-                } 
-            } 
-        }
-
-        function calcPacing() { 
-            const t = parseFloat(document.getElementById('pTotal').value) || 0; 
-            const g = parseFloat(document.getElementById('pGasto').value) || 0; 
-            const d = parseInt(document.getElementById('pDia').value) || 1; 
-            if(t > 0) { 
-                document.getElementById('pacingBox').classList.remove('hidden'); 
-                const ideal = (t - g) / (31 - d); 
-                document.getElementById('pIdeal').innerText = fmt.format(ideal > 0 ? ideal : 0); 
-            } 
-        }
-
-        function calcVid() { 
-            const i = parseFloat(document.getElementById('vImp').value) || 0; 
-            const p = parseFloat(document.getElementById('v3s').value) || 0; 
-            if(i > 0) { 
-                const hook = (p / i) * 100; 
-                document.getElementById('rHook').innerText = hook.toFixed(1) + "%"; 
-                document.getElementById('rHold').innerText = (hook * 0.4).toFixed(1) + "%"; 
-            } 
-        }
-
-        // --- IA E CHAT ---
-
-        async function sendMessage() {
-            const input = document.getElementById('chat-input');
-            const message = input.value.trim();
-            if (!message) return;
-
-            appendMessage('user', message);
-            input.value = '';
-            historicoChat.push({ role: "user", parts: [{ text: message }] });
-            const typingId = appendMessage('bot', '...');
-
-            try {
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-                        contents: historicoChat
-                    })
-                });
-
-                const finalResponse = await readStream(response, (text) => {
-                    updateBotMessage(typingId, text);
-                });
-
-                historicoChat.push({ role: "model", parts: [{ text: finalResponse }] });
-            } catch (e) { updateBotMessage(typingId, "Erro de conexão."); }
-        }
-
+        // --- ANALISADOR LP (AGORA CARREGA TUDO ANTES DE MOSTRAR) ---
         async function gerarAnaliseLP() {
             const urlInput = document.getElementById('lp-url').value.trim();
             const loader = document.getElementById('lp-loader');
@@ -421,19 +309,44 @@
                     body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: promptLP }] }] })
                 });
 
-                let hasStarted = false;
-                await readStream(response, (text) => {
-                    if (text.length > 0 && !hasStarted) {
-                        hasStarted = true;
-                        loader.classList.add('hidden');
-                        resultBox.classList.remove('hidden');
-                    }
-                    reportDiv.innerHTML = marked.parse(text);
-                });
+                // Aqui a mágica: esperamos a stream terminar ANTES de mostrar
+                const fullAnalysis = await readStream(response); 
+                
+                if (fullAnalysis) {
+                    reportDiv.innerHTML = marked.parse(fullAnalysis);
+                    loader.classList.add('hidden');
+                    resultBox.classList.remove('hidden');
+                } else {
+                    alert("A IA não conseguiu acessar a página.");
+                    loader.classList.add('hidden');
+                }
             } catch (e) { 
                 alert("Erro ao conectar."); 
                 loader.classList.add('hidden'); 
             }
+        }
+
+        // --- GESTOR IA CHAT ---
+        let historicoChat = [];
+        const SYSTEM_PROMPT = "Você é o Diretor de Performance do GestorHub PRO. Especialista em Tráfego Pago e CRO. 1. Nunca dê diagnóstico sem saber o NICHO e TICKET. 2. Analise Landing Pages focando em COPY, OFERTA e FUNIL. 3. Respostas técnicas e diretas.";
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+            appendMessage('user', message);
+            input.value = '';
+            historicoChat.push({ role: "user", parts: [{ text: message }] });
+            const typingId = appendMessage('bot', '...');
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ system_instruction: { parts: [{ text: SYSTEM_PROMPT }] }, contents: historicoChat })
+                });
+                const finalResponse = await readStream(response, (text) => { updateBotMessage(typingId, text); });
+                historicoChat.push({ role: "model", parts: [{ text: finalResponse }] });
+            } catch (e) { updateBotMessage(typingId, "Erro de conexão."); }
         }
 
         function appendMessage(type, text) {
@@ -452,19 +365,8 @@
             document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
         }
 
-        function clearChat() {
-            if (confirm("Resetar conversa?")) {
-                historicoChat = [];
-                document.getElementById('chat-messages').innerHTML = '<div class="bg-blue-600 text-white p-4 rounded-3xl text-xs font-medium shadow-md">Pronto para a nova análise.</div>';
-            }
-        }
-
-        function baixarPDFAnalise() {
-            const element = document.getElementById('lp-report-pdf');
-            const opt = { margin: 10, filename: 'Relatorio-CRO.pdf', html2canvas: { scale: 3 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-            html2pdf().set(opt).from(element).save();
-        }
-
+        function clearChat() { if (confirm("Resetar conversa?")) { historicoChat = []; document.getElementById('chat-messages').innerHTML = '<div class="bg-blue-600 text-white p-4 rounded-3xl text-xs font-medium shadow-md">Pronto para a nova análise.</div>'; } }
+        function baixarPDFAnalise() { const element = document.getElementById('lp-report-pdf'); const opt = { margin: 10, filename: 'Relatorio-CRO.pdf', html2canvas: { scale: 3 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }; html2pdf().set(opt).from(element).save(); }
         document.getElementById('chat-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
     </script>
 </body>
