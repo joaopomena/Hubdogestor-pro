@@ -260,9 +260,15 @@
                         try {
                             const jsonStr = line.replace("data: ", "").trim();
                             const json = JSON.parse(jsonStr);
-                            if (json.candidates && json.candidates[0].content.parts[0].text) {
-                                accumulatedText += json.candidates[0].content.parts[0].text;
-                                callback(accumulatedText);
+                            // AJUSTE PARA GEMINI 2.5: Percorrer todas as parts para achar o texto
+                            const parts = json.candidates?.[0]?.content?.parts;
+                            if (parts) {
+                                for (const part of parts) {
+                                    if (part.text) {
+                                        accumulatedText += part.text;
+                                        callback(accumulatedText);
+                                    }
+                                }
                             }
                         } catch (e) {}
                     }
@@ -330,9 +336,11 @@
                     body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: promptLP }] }] })
                 });
 
+                // NOVO: Garantir que o container apareça assim que começar a resposta
+                loader.classList.add('hidden');
+                resultBox.classList.remove('hidden');
+
                 await readStream(response, (text) => {
-                    loader.classList.add('hidden');
-                    resultBox.classList.remove('hidden');
                     reportDiv.innerHTML = marked.parse(text);
                 });
             } catch (e) { alert("Erro ao conectar."); loader.classList.add('hidden'); }
@@ -369,7 +377,25 @@
 
         // CALCULADORES
         const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-        function calcTax() { const v = parseFloat(document.getElementById('taxInput').value) || 0; const rate = (parseFloat(document.getElementById('taxRate').value) || 0) / 100; const j = v * rate; document.getElementById('taxJuros').innerText = "+ " + fmt.format(j); document.getElementById('taxTotal').innerText = fmt.format(v + j); }
+        
+        // CORREÇÃO: Lógica de Taxa Reversa (Cálculo por dentro)
+        function calcTax() { 
+            const valorDesejado = parseFloat(document.getElementById('taxInput').value) || 0; 
+            const taxa = (parseFloat(document.getElementById('taxRate').value) || 0) / 100; 
+            
+            if (valorDesejado > 0) {
+                // Cálculo reverso: Total = Desejado / (1 - Taxa)
+                const total = valorDesejado / (1 - taxa);
+                const valorTaxa = total - valorDesejado;
+
+                document.getElementById('taxJuros').innerText = "+ " + fmt.format(valorTaxa); 
+                document.getElementById('taxTotal').innerText = fmt.format(total); 
+            } else {
+                document.getElementById('taxJuros').innerText = "+ R$ 0,00"; 
+                document.getElementById('taxTotal').innerText = "R$ 0,00";
+            }
+        }
+
         function copyTax() { const val = document.getElementById('taxTotal').innerText; if (val !== "R$ 0,00") { navigator.clipboard.writeText(val); alert("Copiado!"); } }
         function calcMMF() { const v = parseFloat(document.getElementById('mmfVendas').value) || 0; const m = (parseFloat(document.getElementById('mmfMargem').value) || 0) / 100; const a = parseFloat(document.getElementById('mmfAds').value) || 0; const f = parseFloat(document.getElementById('mmfFee').value) || 0; if(v > 0) { const mmf = (v * m) - a - f; const box = document.getElementById('mmfResultBox'); box.classList.remove('hidden'); document.getElementById('mmfValue').innerText = fmt.format(mmf); box.className = mmf > 0 ? "rounded-[2.5rem] p-10 text-white text-center shadow-lg mt-6 bg-emerald-600" : "rounded-[2.5rem] p-10 text-white text-center shadow-lg mt-6 bg-rose-600"; document.getElementById('mmfLabel').innerText = mmf > 0 ? "🚨 LUCRO REAL" : "⚠️ PREJUÍZO"; } }
         function calcStress() { const avg = parseFloat(document.getElementById('stressAvg').value) || 0; const now = parseFloat(document.getElementById('stressNow').value) || 0; if(avg > 0 && now > 0) { const diff = ((now - avg) / avg) * 100; const box = document.getElementById('stressBox'); box.classList.remove('hidden'); document.getElementById('stressPerc').innerText = (diff > 0 ? "+" : "") + diff.toFixed(1) + "%"; if(diff <= 20) { box.className = "rounded-[2.5rem] p-8 text-white mt-4 bg-emerald-600"; document.getElementById('stressStatus').innerText = "🟢 NORMAL"; } else if(diff <= 50) { box.className = "rounded-[2.5rem] p-8 text-white mt-4 bg-amber-500"; document.getElementById('stressStatus').innerText = "🟡 ALERTA"; } else { box.className = "rounded-[2.5rem] p-8 text-white mt-4 bg-rose-600"; document.getElementById('stressStatus').innerText = "🔴 ANOMALIA"; } } }
